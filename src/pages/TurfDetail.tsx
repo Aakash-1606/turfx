@@ -8,10 +8,12 @@ import { Calendar } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { TimeSlotGrid } from "@/components/TimeSlotGrid";
 import { MapPin, Star, Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export default function TurfDetail() {
   const { id } = useParams<{ id: string }>();
@@ -52,16 +54,14 @@ export default function TurfDetail() {
     }
   };
   
-  const handleTimeSlotSelect = (slot: TimeSlot) => {
-    if (slot.available) {
-      setSelectedSlot(slot === selectedSlot ? null : slot);
-    }
-  };
-  
   const handleBooking = () => {
-    if (!selectedSlot) return;
+    if (!selectedSlot) {
+      toast.error("Please select a time slot");
+      return;
+    }
+    
     // In a real app, we would submit the booking to an API
-    alert(`Booking confirmed for ${format(date!, "PPP")} at ${selectedSlot.time}`);
+    toast.success(`Booking confirmed for ${format(date!, "PPP")} at ${selectedSlot.time}`);
     navigate("/bookings");
   };
 
@@ -71,7 +71,7 @@ export default function TurfDetail() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {/* Turf Details */}
           <div className="md:col-span-2 space-y-6">
-            <div className="aspect-video w-full overflow-hidden rounded-lg">
+            <div className="aspect-video w-full overflow-hidden rounded-lg shadow-md">
               <img
                 src={turf.image}
                 alt={turf.name}
@@ -88,7 +88,7 @@ export default function TurfDetail() {
                     <span>{turf.location}</span>
                   </div>
                 </div>
-                <Badge className="bg-primary/10 text-primary">
+                <Badge className="bg-primary/20 text-primary border-primary/30">
                   {turf.sport}
                 </Badge>
               </div>
@@ -107,9 +107,9 @@ export default function TurfDetail() {
               
               <div className="mt-6">
                 <h2 className="text-xl font-semibold">Amenities</h2>
-                <ul className="mt-2 grid grid-cols-2 gap-2">
+                <ul className="mt-4 grid grid-cols-2 gap-3">
                   {turf.amenities.map((amenity) => (
-                    <li key={amenity} className="flex items-center">
+                    <li key={amenity} className="flex items-center rounded-md border bg-card px-3 py-2 shadow-sm">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
@@ -133,7 +133,7 @@ export default function TurfDetail() {
           
           {/* Booking Section */}
           <div className="space-y-6">
-            <div className="rounded-lg border bg-card p-6 shadow-sm">
+            <div className="rounded-lg border bg-card p-6 shadow-md">
               <div className="mb-4 flex items-baseline justify-between">
                 <h2 className="text-xl font-semibold">Book This Turf</h2>
                 <div className="text-xl font-bold text-primary">${turf.price}/hr</div>
@@ -177,24 +177,11 @@ export default function TurfDetail() {
                 </TabsContent>
                 
                 <TabsContent value="slots" className="pt-4">
-                  <div className="grid grid-cols-2 gap-2">
-                    {timeSlots.map((slot) => (
-                      <div
-                        key={slot.id}
-                        className={cn(
-                          "rounded-md border p-2 text-center cursor-pointer transition-colors",
-                          slot.available
-                            ? selectedSlot?.id === slot.id
-                              ? "bg-primary text-primary-foreground"
-                              : "hover:bg-muted"
-                            : "bg-muted/50 text-muted-foreground cursor-not-allowed opacity-50"
-                        )}
-                        onClick={() => slot.available && handleTimeSlotSelect(slot)}
-                      >
-                        {slot.time}
-                      </div>
-                    ))}
-                  </div>
+                  <TimeSlotGrid 
+                    timeSlots={timeSlots}
+                    selectedSlot={selectedSlot}
+                    onSlotSelect={setSelectedSlot}
+                  />
                 </TabsContent>
               </Tabs>
               
@@ -204,28 +191,30 @@ export default function TurfDetail() {
                   className="w-full"
                   disabled={!selectedSlot}
                 >
-                  Book Now
+                  Book Now for ${turf.price}
                 </Button>
               </div>
               
-              <p className="mt-4 text-center text-xs text-muted-foreground">
-                No payment required now. Pay at venue.
-              </p>
+              <div className="mt-4 rounded-md border border-muted-foreground/10 bg-muted/30 p-3">
+                <p className="text-center text-xs text-muted-foreground">
+                  No payment required now. Pay at venue.
+                </p>
+              </div>
             </div>
             
-            <div className="rounded-lg border bg-card p-6">
+            <div className="rounded-lg border bg-card p-6 shadow-sm">
               <h3 className="font-semibold">Booking Policy</h3>
               <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start">
-                  <span className="mr-2">•</span>
+                  <span className="mr-2 text-primary">•</span>
                   <span>Bookings can be cancelled up to 12 hours before the scheduled time</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="mr-2">•</span>
+                  <span className="mr-2 text-primary">•</span>
                   <span>No refunds for late cancellations or no-shows</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="mr-2">•</span>
+                  <span className="mr-2 text-primary">•</span>
                   <span>Please arrive 15 minutes before your slot</span>
                 </li>
               </ul>

@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +10,7 @@ import TurfDetail from "./pages/TurfDetail";
 import Bookings from "./pages/Bookings";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import HowItWorks from "./pages/HowItWorks";
 import AdminDashboard from "./pages/AdminDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import NotFound from "./pages/NotFound";
@@ -28,6 +30,7 @@ const App = () => (
           <Route path="/bookings" element={<Bookings />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/owner" element={<OwnerDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
