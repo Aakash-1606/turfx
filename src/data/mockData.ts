@@ -14,70 +14,114 @@ export interface Turf {
 export const turfs: Turf[] = [
   {
     id: "1",
-    name: "Green Valley Football Turf",
-    location: "Downtown Sports Complex, Central City",
-    image: "https://images.unsplash.com/photo-1487466365202-1afdb86c764e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
-    price: 80,
+    name: "FFC Arena Pondy",
+    location: "Mahavishnu Nagar, Mortandi",
+    image: "/lovable-uploads/4ce6b63b-0348-4eab-b6f9-dfe52bbbe41c.png",
+    price: 1200,
     rating: 4.5,
     sport: "Football",
-    amenities: ["Changing Rooms", "Floodlights", "Parking", "Water Dispensers"],
-    description: "Professional standard football turf with FIFA approved artificial grass. Perfect for 5-a-side and 7-a-side matches with excellent facilities."
+    amenities: ["Floodlights", "Changing Rooms", "Parking", "Water Dispensers"],
+    description: "Premier football turf in Mahavishnu Nagar with professional-grade artificial grass and modern amenities."
   },
   {
     id: "2",
-    name: "City Hoops Basketball Court",
-    location: "Riverside Recreation Center, East Side",
-    image: "https://images.unsplash.com/photo-1505666287802-931dc83d6cce?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
-    price: 65,
+    name: "Pondy Pitch",
+    location: "Ramayee Garden, Ariyankuppam",
+    image: "https://images.unsplash.com/photo-1487466365202-1afdb86c764e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+    price: 1000,
     rating: 4.3,
-    sport: "Basketball",
-    amenities: ["Scoreboard", "Seating Area", "Pro Flooring"],
-    description: "Full-size regulation basketball court with professional flooring. Electronic scoreboard and spectator seating available."
+    sport: "Football",
+    amenities: ["Night Lighting", "Parking", "Seating Area"],
+    description: "Well-maintained football turf in Ariyankuppam with excellent facilities and easy accessibility."
   },
   {
     id: "3",
-    name: "Smash Point Tennis Club",
-    location: "Hillside Sports Village, North Heights",
-    image: "https://images.unsplash.com/photo-1562742938-bbcc276ada7f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
-    price: 90,
-    rating: 4.7,
-    sport: "Tennis",
-    amenities: ["Clay Courts", "Pro Shop", "Coaching Available", "Racket Rental"],
-    description: "Premium clay tennis courts maintained to professional standards. Racket rental and professional coaching available on request."
+    name: "Flick on Arena",
+    location: "Opp. Shiva Vishnu Mahal, Karuvadikuppam",
+    image: "https://images.unsplash.com/photo-1577075246611-39e1f9f0fa3b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+    price: 1100,
+    rating: 4.4,
+    sport: "Football",
+    amenities: ["Pro Turf", "Floodlights", "Washrooms"],
+    description: "Modern sports facility opposite Shiva Vishnu Mahal, perfect for evening games."
   },
   {
     id: "4",
-    name: "Cricket Stadium",
-    location: "Sunshine Sports Park, West End",
+    name: "Turf 10",
+    location: "Ellaipillaichavady",
     image: "https://images.unsplash.com/photo-1589743795127-e32dfd70a399?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
-    price: 120,
-    rating: 4.8,
-    sport: "Cricket",
-    amenities: ["Practice Nets", "Pavilion", "Electronic Scoreboard", "Equipment Rental"],
-    description: "Full-size cricket ground with well-maintained outfield and pitch. Practice nets and pavilion with changing facilities included."
+    price: 900,
+    rating: 4.2,
+    sport: "Football",
+    amenities: ["Basic Amenities", "Parking", "Water"],
+    description: "Affordable and accessible turf in Ellaipillaichavady, ideal for casual games and practice sessions."
   },
   {
     id: "5",
-    name: "Volley Paradise",
-    location: "Beach Sports Complex, South Shore",
+    name: "Unity Park",
+    location: "ECR Road, Opp. Ambur Star Biryani",
     image: "https://images.unsplash.com/photo-1534296264129-22c9f242d00c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
-    price: 70,
-    rating: 4.2,
-    sport: "Volleyball",
-    amenities: ["Sand Courts", "Nets Provided", "Shower Facilities"],
-    description: "Premium sand volleyball courts designed for both recreational and competitive play. Full facilities including showers and changing rooms."
+    price: 1500,
+    rating: 4.7,
+    sport: "Multi-Sport",
+    amenities: ["Premium Facilities", "Cafe", "Pro Shop", "Coaching"],
+    description: "Premium multi-sport facility on ECR Road with top-notch amenities and professional coaching options."
   },
   {
     id: "6",
-    name: "Elite Futsal Arena",
-    location: "Metropolitan Sports Hub, City Center",
-    image: "https://images.unsplash.com/photo-1577075246611-39e1f9f0fa3b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
-    price: 85,
+    name: "DK7 Sports Hub",
+    location: "Near Aditya Vidyashram, Moolakulam",
+    image: "https://images.unsplash.com/photo-1472396961693-142e6e269027?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+    price: 1300,
     rating: 4.6,
-    sport: "Futsal",
-    amenities: ["Pro Flooring", "Digital Scoreboard", "Spectator Seating"],
-    description: "Indoor futsal arena with professional-grade flooring and markings. Perfect for fast-paced futsal matches with digital scoring system."
+    sport: "Multi-Sport",
+    amenities: ["Multiple Courts", "Pro Training", "Cafe"],
+    description: "Comprehensive sports hub near Aditya Vidyashram offering multiple sports facilities and professional training."
   },
+  {
+    id: "7",
+    name: "MSG Turf",
+    location: "Thavalakuppam, Periyakattupalayam",
+    image: "https://images.unsplash.com/photo-1466721591366-2d5fba72006d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+    price: 800,
+    rating: 4.1,
+    sport: "Football",
+    amenities: ["Basic Facilities", "Parking"],
+    description: "Affordable football turf in Thavalakuppam with basic amenities for casual players."
+  },
+  {
+    id: "8",
+    name: "Spin Turf",
+    location: "Marina Beach area",
+    image: "https://images.unsplash.com/photo-1493962853295-0fd70327578a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+    price: 1200,
+    rating: 4.4,
+    sport: "Cricket",
+    amenities: ["Cricket Nets", "Equipment Rental", "Coaching"],
+    description: "Specialized cricket facility near Marina Beach with professional coaching and equipment rental."
+  },
+  {
+    id: "9",
+    name: "Dynamic Sports Club",
+    location: "Sudhakar Nagar, Reddiyarpalayam",
+    image: "https://images.unsplash.com/photo-1452378174528-3090a4bba7b2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+    price: 1100,
+    rating: 4.3,
+    sport: "Multi-Sport",
+    amenities: ["Multiple Courts", "Gym", "Cafe"],
+    description: "Comprehensive sports club in Reddiyarpalayam offering various sports facilities and fitness options."
+  },
+  {
+    id: "10",
+    name: "Turf Eden Gulf Villianur",
+    location: "Marie Oulgaret, Manavely",
+    image: "https://images.unsplash.com/photo-1589743795127-e32dfd70a399?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+    price: 1000,
+    rating: 4.2,
+    sport: "Football",
+    amenities: ["Standard Facilities", "Parking", "Refreshments"],
+    description: "Well-maintained football turf in Manavely with standard amenities and refreshment options."
+  }
 ];
 
 export interface TimeSlot {
