@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 
 export function Footer() {
@@ -24,7 +23,7 @@ export function Footer() {
                   <path d="M20 17H4V19H20V17Z" />
                 </svg>
               </div>
-              <span className="text-lg font-bold text-foreground">TurfTime</span>
+              <span className="text-lg font-bold text-foreground">TurfX</span>
             </div>
             <p className="text-sm text-muted-foreground">
               Book sports turfs easily and quickly, just like booking movie tickets.
@@ -128,7 +127,7 @@ export function Footer() {
         </div>
         <div className="mt-8 border-t pt-6 text-center">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} TurfTime. All rights reserved.
+            © {new Date().getFullYear()} TurfX. All rights reserved.
           </p>
         </div>
       </div>

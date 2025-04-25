@@ -28,7 +28,7 @@ export function Header() {
               <path d="M20 17H4V19H20V17Z" />
             </svg>
           </div>
-          <span className="text-lg font-bold text-foreground">TurfTime</span>
+          <span className="text-lg font-bold text-foreground">TurfX</span>
         </Link>
 
         {/* Desktop Navigation */}
