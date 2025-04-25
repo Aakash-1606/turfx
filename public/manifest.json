@@ -1,12 +1,12 @@
 
 {
-  "name": "TurfTime - Book Sports Turfs",
-  "short_name": "TurfTime",
-  "description": "Book sports turfs easily and quickly, just like booking movie tickets.",
+  "name": "TurfX - Book Sports Turfs Across India",
+  "short_name": "TurfX",
+  "description": "Book sports turfs easily and quickly, just like booking movie tickets. Starting with locations in Pondicherry.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#0e9f6e",
+  "theme_color": "#34a853",
   "orientation": "portrait-primary",
   "icons": [
     {
