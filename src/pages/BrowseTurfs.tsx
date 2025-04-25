@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { TurfCard } from "@/components/TurfCard";
 import { turfs } from "@/data/mockData";
@@ -9,10 +9,33 @@ export default function BrowseTurfs() {
   const [filteredTurfs, setFilteredTurfs] = useState(turfs);
   
   const handleFilterChange = (filters: any) => {
-    // In a real app, we would apply the filters here
-    // For now, let's just use the same turfs
     console.log("Applied filters:", filters);
-    setFilteredTurfs(turfs);
+    
+    // Apply filters to the turfs
+    let filtered = [...turfs];
+    
+    // Filter by sport if selected
+    if (filters.sport) {
+      filtered = filtered.filter(turf => 
+        turf.sport.toLowerCase() === filters.sport.toLowerCase()
+      );
+    }
+    
+    // Filter by price range
+    if (filters.priceRange && Array.isArray(filters.priceRange) && filters.priceRange.length === 2) {
+      filtered = filtered.filter(turf => 
+        turf.price >= filters.priceRange[0] && turf.price <= filters.priceRange[1]
+      );
+    }
+    
+    // Filter by location (for future use when we have multiple locations)
+    if (filters.location && filters.location !== "Pondicherry") {
+      filtered = filtered.filter(turf => 
+        turf.location.includes(filters.location)
+      );
+    }
+    
+    setFilteredTurfs(filtered);
   };
 
   return (
