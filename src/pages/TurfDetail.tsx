@@ -60,9 +60,19 @@ export default function TurfDetail() {
       return;
     }
     
-    // In a real app, we would submit the booking to an API
-    toast.success(`Booking confirmed for ${format(date!, "PPP")} at ${selectedSlot.time}`);
-    navigate("/bookings");
+    // Instead of directly navigating to bookings, send to payment page with booking data
+    const bookingData = {
+      turfId: turf.id,
+      turfName: turf.name,
+      turfLocation: turf.location,
+      turfImage: turf.image,
+      turfSport: turf.sport,
+      price: turf.price,
+      date: date,
+      time: selectedSlot.time
+    };
+    
+    navigate('/payment', { state: { bookingData } });
   };
 
   return (
@@ -136,7 +146,7 @@ export default function TurfDetail() {
             <div className="rounded-lg border bg-card p-6 shadow-md">
               <div className="mb-4 flex items-baseline justify-between">
                 <h2 className="text-xl font-semibold">Book This Turf</h2>
-                <div className="text-xl font-bold text-primary">${turf.price}/hr</div>
+                <div className="text-xl font-bold text-primary">₹{turf.price}/hr</div>
               </div>
               
               <Separator className="my-4" />
@@ -188,16 +198,16 @@ export default function TurfDetail() {
               <div className="mt-6">
                 <Button
                   onClick={handleBooking}
-                  className="w-full"
+                  className="w-full hover-scale"
                   disabled={!selectedSlot}
                 >
-                  Book Now for ${turf.price}
+                  Pay ₹{turf.price} & Book Now
                 </Button>
               </div>
               
               <div className="mt-4 rounded-md border border-muted-foreground/10 bg-muted/30 p-3">
                 <p className="text-center text-xs text-muted-foreground">
-                  No payment required now. Pay at venue.
+                  Secure payment options available. Cancel up to 12 hours before.
                 </p>
               </div>
             </div>
