@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, User } from "lucide-react";
@@ -12,21 +11,12 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-5 w-5 text-primary-foreground"
-            >
-              <path d="M20 5H4V9H20V5Z" />
-              <path d="M20 11H4V15H20V11Z" />
-              <path d="M20 17H4V19H20V17Z" />
-            </svg>
+          <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center overflow-hidden">
+            <img
+              src="/lovable-uploads/4ce6b63b-0348-4eab-b6f9-dfe52bbbe41c.png"
+              alt="TurfX Logo"
+              className="h-full w-full object-cover"
+            />
           </div>
           <span className="text-lg font-bold text-foreground">TurfX</span>
         </Link>
@@ -71,7 +61,7 @@ export function Header() {
               Sign Up
             </Button>
           </Link>
-          
+
           {/* Mobile Menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
