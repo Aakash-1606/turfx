@@ -15,7 +15,7 @@ export function FeaturedTurfs({ turfs }: FeaturedTurfsProps) {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-2xl font-bold text-foreground md:text-3xl">
-              Featured Turfs in <span className="text-primary">Pondicherry</span>
+              Featured Turfs <span className="text-primary">Near You</span>
             </h2>
             <p className="mt-2 text-muted-foreground">
               Discover top-rated sports facilities in your area

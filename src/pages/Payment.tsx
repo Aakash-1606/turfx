@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, Clock, MapPin, CreditCard, Wallet, WalletCards } from "lucide-react";
 import { format } from "date-fns";
+import { BookingConfirmationDialog } from "@/components/BookingConfirmationDialog";
 
 export default function Payment() {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ export default function Payment() {
   
   const [paymentMethod, setPaymentMethod] = useState<string>("card");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   
   if (!bookingData.turfId) {
     // Redirect if no booking data is available
@@ -33,9 +35,14 @@ export default function Payment() {
     // Simulate payment processing
     setTimeout(() => {
       setIsProcessing(false);
-      toast.success("Payment successful! Your booking has been confirmed.");
-      navigate("/bookings");
+      setShowConfirmation(true);
+      // We'll show the dialog instead of navigating directly
     }, 2000);
+  };
+  
+  const handleConfirmationClose = () => {
+    setShowConfirmation(false);
+    // No immediate navigation - the dialog has buttons for that
   };
   
   return (
@@ -210,6 +217,13 @@ export default function Payment() {
           </div>
         </div>
       </div>
+      
+      {/* Booking Confirmation Dialog */}
+      <BookingConfirmationDialog 
+        isOpen={showConfirmation}
+        onClose={handleConfirmationClose}
+        bookingData={bookingData}
+      />
     </Layout>
   );
 }
