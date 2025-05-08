@@ -23,9 +23,7 @@ export function Header() {
               strokeLinejoin="round"
               className="h-5 w-5 text-primary-foreground"
             >
-              <path d="M20 5H4V9H20V5Z" />
-              <path d="M20 11H4V15H20V11Z" />
-              <path d="M20 17H4V19H20V17Z" />
+              <path d="public/lovable-uploads/4ce6b63b-0348-4eab-b6f9-dfe52bbbe41c.png" />
             </svg>
           </div>
           <span className="text-lg font-bold text-foreground">TurfX</span>
