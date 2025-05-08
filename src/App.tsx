@@ -11,6 +11,7 @@ import Bookings from "./pages/Bookings";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import HowItWorks from "./pages/HowItWorks";
+import About from "./pages/About";
 import AdminDashboard from "./pages/AdminDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import NotFound from "./pages/NotFound";
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/about" element={<About />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/owner" element={<OwnerDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
