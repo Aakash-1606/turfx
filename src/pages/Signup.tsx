@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Layout } from "@/components/layout/Layout";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Signup() {
   return (
@@ -65,29 +64,21 @@ export default function Signup() {
             </div>
             <div className="space-y-2">
               <label
-                htmlFor="account-type"
-                className="text-sm font-medium leading-none"
-              >
-                Account Type
-              </label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select account type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="player">Player</SelectItem>
-                  <SelectItem value="turf-owner">Turf Owner</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label
                 htmlFor="password"
                 className="text-sm font-medium leading-none"
               >
                 Password
               </label>
               <Input id="password" type="password" />
+            </div>
+            <div className="space-y-2">
+              <label
+                htmlFor="confirm-password"
+                className="text-sm font-medium leading-none"
+              >
+                Confirm Password
+              </label>
+              <Input id="confirm-password" type="password" />
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox id="terms" />
