@@ -13,11 +13,12 @@ export function Header() {
         <Link to="/" className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center overflow-hidden">
             <img
-              src="public/icons/TurfX Logo.png"
+              src="/lovable-uploads/4ce6b63b-0348-4eab-b6f9-dfe52bbbe41c.png"
               alt="TurfX Logo"
               className="h-full w-full object-cover"
             />
           </div>
+          <span className="text-lg font-bold text-foreground">TurfX</span>
         </Link>
 
         {/* Desktop Navigation */}
