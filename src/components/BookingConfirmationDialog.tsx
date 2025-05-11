@@ -96,49 +96,51 @@ export function BookingConfirmationDialog({
   return (
     <>
       {/* CSS for confetti animation */}
-      <style jsx="true">{`
-        .confetti-container {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          top: 0;
-          left: 0;
-          pointer-events: none;
-          overflow: hidden;
-          z-index: 50;
-        }
-        
-        .confetti {
-          position: absolute;
-          border-radius: 3px;
-          z-index: 50;
-        }
-        
-        @keyframes confettiDrop {
-          0% {
-            transform: translateY(0) rotate(0deg);
+      <style>
+        {`
+          .confetti-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 50;
           }
-          100% {
-            transform: translateY(1000px) rotate(720deg);
+          
+          .confetti {
+            position: absolute;
+            border-radius: 3px;
+            z-index: 50;
           }
-        }
-        
-        @keyframes iconBounce {
-          0%, 20%, 50%, 80%, 100% {
-            transform: translateY(0);
+          
+          @keyframes confettiDrop {
+            0% {
+              transform: translateY(0) rotate(0deg);
+            }
+            100% {
+              transform: translateY(1000px) rotate(720deg);
+            }
           }
-          40% {
-            transform: translateY(-20px);
+          
+          @keyframes iconBounce {
+            0%, 20%, 50%, 80%, 100% {
+              transform: translateY(0);
+            }
+            40% {
+              transform: translateY(-20px);
+            }
+            60% {
+              transform: translateY(-10px);
+            }
           }
-          60% {
-            transform: translateY(-10px);
+          
+          .success-icon {
+            animation: iconBounce 1.5s ease-out;
           }
-        }
-        
-        .success-icon {
-          animation: iconBounce 1.5s ease-out;
-        }
-      `}</style>
+        `}
+      </style>
     
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-md fade-in">
