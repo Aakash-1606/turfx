@@ -1,11 +1,29 @@
-
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Layout } from "@/components/layout/Layout";
+import { supabase } from "@/lib/supabaseClient"; // Make sure this file exists
 
 export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async () => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      alert("Login failed: " + error.message);
+    } else {
+      alert("Login successful!");
+      // TODO: Redirect to homepage or dashboard
+    }
+  };
+
   return (
     <Layout>
       <div className="container flex items-center justify-center py-16">
@@ -28,6 +46,8 @@ export default function Login() {
                 id="email"
                 placeholder="m@example.com"
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 autoCapitalize="none"
                 autoComplete="email"
                 autoCorrect="off"
@@ -48,7 +68,12 @@ export default function Login() {
                   Forgot password?
                 </Link>
               </div>
-              <Input id="password" type="password" />
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox id="remember" />
@@ -59,7 +84,9 @@ export default function Login() {
                 Remember me
               </label>
             </div>
-            <Button className="w-full">Sign In</Button>
+            <Button className="w-full" onClick={handleLogin}>
+              Sign In
+            </Button>
           </div>
           <div className="text-center text-sm">
             Don't have an account?{" "}
