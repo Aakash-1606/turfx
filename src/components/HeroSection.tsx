@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Trophy, Circle, BallBasketball, Ball } from "lucide-react";
+import { Search, MapPin, Trophy, Circle, Football, Activity } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export function HeroSection() {
@@ -18,7 +17,7 @@ export function HeroSection() {
       const iconContainer = document.getElementById('floating-icons');
       if (!iconContainer) return;
       
-      const icons = [Ball, BallBasketball, Trophy, Circle];
+      const icons = [Football, Activity, Trophy, Circle];
       const randomIcon = icons[Math.floor(Math.random() * icons.length)];
       
       const icon = document.createElement('div');
@@ -42,14 +41,12 @@ export function HeroSection() {
       
       // Different paths for different icons
       let path;
-      if (randomIcon === Ball) {
+      if (randomIcon === Football) {
         path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         path.setAttribute("d", "M12 2v8M12 20v-8M22 12h-8M10 12H2");
-      } else if (randomIcon === BallBasketball) {
-        path = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        path.setAttribute("cx", "12");
-        path.setAttribute("cy", "12");
-        path.setAttribute("r", "10");
+      } else if (randomIcon === Activity) {
+        path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", "M22 12h-4l-3 9L9 3l-3 9H2");
       } else if (randomIcon === Trophy) {
         path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         path.setAttribute("d", "M8 21h8M12 3v18M17 8l-5 5-5-5");
