@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, Clock, MapPin, CreditCard, Wallet, WalletCards } from "lucide-react";
 import { format } from "date-fns";
 import { BookingConfirmationDialog } from "@/components/BookingConfirmationDialog";
+import { createBooking } from "@/services/bookingService";
+import { getCurrentUser } from "@/auth";
 
 export default function Payment() {
   const navigate = useNavigate();
@@ -22,6 +24,27 @@ export default function Payment() {
   const [paymentMethod, setPaymentMethod] = useState<string>("card");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [completedBooking, setCompletedBooking] = useState(null);
+  
+  useEffect(() => {
+    async function fetchCurrentUser() {
+      try {
+        const user = await getCurrentUser();
+        if (!user) {
+          toast.error("Please login to continue");
+          navigate("/login", { state: { from: location.pathname } });
+          return;
+        }
+        setUserId(user.id);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        toast.error("Authentication error");
+      }
+    }
+    
+    fetchCurrentUser();
+  }, [navigate, location.pathname]);
   
   if (!bookingData.turfId) {
     // Redirect if no booking data is available
@@ -29,20 +52,46 @@ export default function Payment() {
     return null;
   }
   
-  const handlePayment = () => {
+  const handlePayment = async () => {
+    if (!userId) {
+      toast.error("Please login to continue");
+      return;
+    }
+    
     setIsProcessing(true);
     
-    // Simulate payment processing
-    setTimeout(() => {
-      setIsProcessing(false);
+    try {
+      // Format date to ISO string for storage
+      const formattedDate = bookingData.date instanceof Date 
+        ? bookingData.date.toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0];
+      
+      // Create the booking in Supabase
+      const newBooking = {
+        user_id: userId,
+        turf_id: bookingData.turfId,
+        date: formattedDate,
+        time: bookingData.time,
+        price: bookingData.price,
+        payment_method: paymentMethod,
+        status: paymentMethod === 'venue' ? 'pending' : 'confirmed'
+      };
+      
+      const [createdBooking] = await createBooking(newBooking);
+      setCompletedBooking(createdBooking);
       setShowConfirmation(true);
-      // We'll show the dialog instead of navigating directly
-    }, 2000);
+    } catch (error) {
+      console.error("Error creating booking:", error);
+      toast.error("Failed to complete booking");
+    } finally {
+      setIsProcessing(false);
+    }
   };
   
   const handleConfirmationClose = () => {
     setShowConfirmation(false);
-    // No immediate navigation - the dialog has buttons for that
+    // Navigate to bookings page after successful booking
+    navigate("/bookings");
   };
   
   return (
@@ -222,7 +271,11 @@ export default function Payment() {
       <BookingConfirmationDialog 
         isOpen={showConfirmation}
         onClose={handleConfirmationClose}
-        bookingData={bookingData}
+        bookingData={{
+          ...bookingData,
+          id: completedBooking?.id,
+          status: completedBooking?.status
+        }}
       />
     </Layout>
   );

@@ -1,9 +1,9 @@
 
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { turfs } from "@/data/mockData";
-import { Link } from "react-router-dom";
-import { Calendar, Clock, MapPin, MoreHorizontal } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Calendar, Clock, MapPin } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -11,52 +11,100 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-
-// Mock bookings data
-const mockBookings = [
-  {
-    id: "b1",
-    turfId: "1",
-    date: "2023-05-15",
-    time: "6:00 PM",
-    status: "upcoming",
-  },
-  {
-    id: "b2",
-    turfId: "3",
-    date: "2023-05-10",
-    time: "7:00 PM",
-    status: "completed",
-  },
-  {
-    id: "b3",
-    turfId: "2",
-    date: "2023-05-05",
-    time: "5:00 PM",
-    status: "completed",
-  },
-];
+import { getUserBookings, cancelBooking } from "@/services/bookingService";
+import { getCurrentUser } from "@/auth";
 
 export default function Bookings() {
-  const upcomingBookings = mockBookings.filter(
-    (booking) => booking.status === "upcoming"
+  const navigate = useNavigate();
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    async function fetchCurrentUser() {
+      try {
+        const user = await getCurrentUser();
+        if (!user) {
+          navigate("/login");
+          return;
+        }
+        setUserId(user.id);
+        return user.id;
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+        return null;
+      }
+    }
+
+    async function fetchBookings(uid) {
+      if (!uid) return;
+      
+      try {
+        const data = await getUserBookings(uid);
+        setBookings(data);
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+        toast.error("Failed to load bookings");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCurrentUser().then(uid => {
+      if (uid) fetchBookings(uid);
+    });
+  }, [navigate]);
+
+  const upcomingBookings = bookings.filter(
+    (booking) => new Date(booking.date) >= new Date()
   );
-  const pastBookings = mockBookings.filter(
-    (booking) => booking.status === "completed"
+  
+  const pastBookings = bookings.filter(
+    (booking) => new Date(booking.date) < new Date()
   );
 
-  const handleCancelBooking = (bookingId: string) => {
-    toast.success("Booking cancelled successfully");
+  const handleCancelBooking = async (bookingId) => {
+    try {
+      await cancelBooking(bookingId);
+      setBookings(bookings.filter(booking => booking.id !== bookingId));
+      toast.success("Booking cancelled successfully");
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      toast.error("Failed to cancel booking");
+    }
   };
 
-  const handleRescheduleBooking = (bookingId: string) => {
+  const handleRescheduleBooking = (bookingId) => {
     toast.info("Rescheduling feature will be available soon");
   };
 
-  const handleBookAgain = (turfId: string) => {
-    // In a real app, we would navigate to the booking page with pre-filled data
-    toast.success("Redirecting to booking page");
+  const handleBookAgain = (turfId) => {
+    navigate(`/turf/${turfId}`);
   };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="container py-8">
+          <h1 className="text-3xl font-bold">My Bookings</h1>
+          <div className="mt-8 space-y-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="rounded-lg border bg-card p-4 shadow-sm animate-pulse">
+                <div className="flex gap-4">
+                  <div className="h-20 w-20 bg-muted rounded-md"></div>
+                  <div className="flex-1">
+                    <div className="h-5 w-1/3 bg-muted rounded-md mb-2"></div>
+                    <div className="h-4 w-1/4 bg-muted rounded-md mb-2"></div>
+                    <div className="h-4 w-2/5 bg-muted rounded-md"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -83,7 +131,7 @@ export default function Bookings() {
                 <h2 className="text-xl font-semibold">Upcoming Bookings</h2>
                 <div className="mt-4 space-y-4">
                   {upcomingBookings.map((booking) => {
-                    const turf = turfs.find((t) => t.id === booking.turfId);
+                    const turf = booking.turfs;
                     if (!turf) return null;
                     
                     return (
@@ -148,7 +196,7 @@ export default function Bookings() {
                 <h2 className="text-xl font-semibold">Past Bookings</h2>
                 <div className="mt-4 space-y-4">
                   {pastBookings.map((booking) => {
-                    const turf = turfs.find((t) => t.id === booking.turfId);
+                    const turf = booking.turfs;
                     if (!turf) return null;
                     
                     return (

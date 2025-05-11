@@ -1,8 +1,8 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
-import { turfs, generateTimeSlots, TimeSlot } from "@/data/mockData";
+import { generateTimeSlots, TimeSlot } from "@/data/mockData";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,18 +14,66 @@ import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { getTurfById } from "@/services/turfService";
 
 export default function TurfDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  const turf = turfs.find((t) => t.id === id);
-  
+  const [turf, setTurf] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(
     generateTimeSlots(new Date())
   );
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
+  
+  useEffect(() => {
+    async function fetchTurfDetails() {
+      if (!id) return;
+      
+      try {
+        const data = await getTurfById(id);
+        setTurf(data);
+      } catch (error) {
+        console.error("Error fetching turf details:", error);
+        toast.error("Failed to load turf details");
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchTurfDetails();
+  }, [id]);
+  
+  if (loading) {
+    return (
+      <Layout>
+        <div className="container py-8">
+          <div className="animate-pulse">
+            <div className="bg-muted h-64 w-full rounded-lg mb-6"></div>
+            <div className="bg-muted h-8 w-1/3 rounded-md mb-4"></div>
+            <div className="bg-muted h-4 w-1/4 rounded-md mb-8"></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="md:col-span-2">
+                <div className="bg-muted h-32 w-full rounded-md mb-4"></div>
+                <div className="bg-muted h-4 w-full rounded-md mb-2"></div>
+                <div className="bg-muted h-4 w-3/4 rounded-md mb-6"></div>
+                <div className="grid grid-cols-2 gap-2">
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="bg-muted h-12 rounded-md"></div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="bg-card border rounded-lg p-6 shadow-md h-80"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
   
   if (!turf) {
     return (
