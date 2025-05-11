@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
@@ -19,6 +19,8 @@ export default function Bookings() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
+  const [animationStarted, setAnimationStarted] = useState(false);
+  const contentRef = useRef(null);
 
   useEffect(() => {
     async function fetchCurrentUser() {
@@ -47,12 +49,41 @@ export default function Bookings() {
         toast.error("Failed to load bookings");
       } finally {
         setLoading(false);
+        // Start animations after data is loaded
+        setTimeout(() => {
+          setAnimationStarted(true);
+        }, 100);
       }
     }
 
     fetchCurrentUser().then(uid => {
       if (uid) fetchBookings(uid);
     });
+    
+    // Set up intersection observer for reveal animations
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    
+    if (contentRef.current) {
+      observer.observe(contentRef.current);
+    }
+    
+    // Observe all elements with reveal class
+    document.querySelectorAll('.reveal').forEach((el) => {
+      observer.observe(el);
+    });
+    
+    return () => {
+      observer.disconnect();
+    };
   }, [navigate]);
 
   const upcomingBookings = bookings.filter(
@@ -108,36 +139,41 @@ export default function Bookings() {
 
   return (
     <Layout>
-      <div className="container py-8">
-        <h1 className="text-3xl font-bold">My Bookings</h1>
+      <div className="container py-8" ref={contentRef}>
+        <h1 className={`text-3xl font-bold transition-all duration-500 ${animationStarted ? 'opacity-100' : 'opacity-0 transform translate-y-4'}`}>
+          My Bookings
+        </h1>
         
         {upcomingBookings.length === 0 && pastBookings.length === 0 ? (
-          <div className="mt-8 rounded-lg border bg-card p-8 text-center shadow-sm">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+          <div className={`mt-8 rounded-lg border bg-card p-8 text-center shadow-sm reveal ${animationStarted ? 'slide-in-bottom' : 'opacity-0'}`}>
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 animate-pulse">
               <Calendar className="h-8 w-8 text-primary" />
             </div>
             <h2 className="text-xl font-semibold">No Bookings Yet</h2>
             <p className="mt-2 text-muted-foreground">
               You haven't made any bookings yet. Browse turfs to make your first booking.
             </p>
-            <Button asChild className="mt-4">
+            <Button asChild className="mt-4 hover-scale">
               <Link to="/browse">Browse Turfs</Link>
             </Button>
           </div>
         ) : (
           <div className="mt-8 space-y-8">
             {upcomingBookings.length > 0 && (
-              <div>
+              <div className={`reveal ${animationStarted ? 'slide-in-left' : 'opacity-0'}`}>
                 <h2 className="text-xl font-semibold">Upcoming Bookings</h2>
                 <div className="mt-4 space-y-4">
-                  {upcomingBookings.map((booking) => {
+                  {upcomingBookings.map((booking, index) => {
                     const turf = booking.turfs;
                     if (!turf) return null;
                     
                     return (
                       <div
                         key={booking.id}
-                        className="rounded-lg border bg-card p-4 shadow-sm transition-all hover:shadow-md"
+                        className={`rounded-lg border bg-card p-4 shadow-sm transition-all duration-300 hover:shadow-md ${
+                          animationStarted ? 'fade-in' : 'opacity-0'
+                        }`}
+                        style={{ animationDelay: `${index * 0.1 + 0.3}s` }}
                       >
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                           <div className="flex gap-4">
@@ -170,7 +206,7 @@ export default function Bookings() {
                             <Button 
                               variant="outline" 
                               size="sm"
-                              className="border-destructive/30 text-destructive hover:bg-destructive/10"
+                              className="border-destructive/30 text-destructive hover:bg-destructive/10 transition-all duration-200"
                               onClick={() => handleCancelBooking(booking.id)}
                             >
                               Cancel
@@ -178,6 +214,7 @@ export default function Bookings() {
                             <Button 
                               variant="outline" 
                               size="sm"
+                              className="hover-scale"
                               onClick={() => handleRescheduleBooking(booking.id)}
                             >
                               Reschedule
@@ -192,17 +229,20 @@ export default function Bookings() {
             )}
             
             {pastBookings.length > 0 && (
-              <div>
+              <div className={`reveal ${animationStarted ? 'slide-in-right delay-300' : 'opacity-0'}`}>
                 <h2 className="text-xl font-semibold">Past Bookings</h2>
                 <div className="mt-4 space-y-4">
-                  {pastBookings.map((booking) => {
+                  {pastBookings.map((booking, index) => {
                     const turf = booking.turfs;
                     if (!turf) return null;
                     
                     return (
                       <div
                         key={booking.id}
-                        className="rounded-lg border bg-card p-4 shadow-sm"
+                        className={`rounded-lg border bg-card p-4 shadow-sm transition-opacity duration-500 ${
+                          animationStarted ? 'fade-in' : 'opacity-0'
+                        }`}
+                        style={{ animationDelay: `${index * 0.1 + 0.6}s` }}
                       >
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                           <div className="flex gap-4">
@@ -234,11 +274,11 @@ export default function Bookings() {
                           <div>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm" className="w-[110px]">
+                                <Button variant="outline" size="sm" className="w-[110px] hover-scale">
                                   <span>Book Again</span>
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
+                              <DropdownMenuContent align="end" className="fade-in">
                                 <DropdownMenuItem onClick={() => handleBookAgain(turf.id)}>
                                   Same Time & Date
                                 </DropdownMenuItem>

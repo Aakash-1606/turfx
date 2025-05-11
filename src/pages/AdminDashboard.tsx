@@ -6,27 +6,69 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { BarChart, Calendar, Users } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { TurfDetailsDialog } from "@/components/TurfDetailsDialog";
 
 export default function AdminDashboard() {
   const [addTurfDialogOpen, setAddTurfDialogOpen] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const dashboardRef = useRef(null);
+
+  useEffect(() => {
+    // Set loaded state after a short delay for animation purposes
+    const timer = setTimeout(() => {
+      setLoaded(true);
+    }, 100);
+    
+    // Add IntersectionObserver to handle reveal animations
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    
+    if (dashboardRef.current) {
+      observer.observe(dashboardRef.current);
+    }
+    
+    document.querySelectorAll('.dashboard-item').forEach((el, index) => {
+      el.classList.add('stagger-item');
+      el.style.animationDelay = `${index * 0.1 + 0.3}s`;
+      el.style.animation = 'fadeIn 0.5s ease-out forwards';
+      observer.observe(el);
+    });
+    
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
+  }, []);
 
   return (
     <Layout>
-      <div className="container py-8">
-        <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
+      <div className="container py-8" ref={dashboardRef}>
+        <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0 reveal">
           <div>
             <h1 className="text-3xl font-bold">Admin Dashboard</h1>
             <p className="mt-1 text-muted-foreground">
               Manage bookings, turfs, users, and revenue
             </p>
           </div>
-          <Button onClick={() => setAddTurfDialogOpen(true)}>Add New Turf</Button>
+          <Button 
+            onClick={() => setAddTurfDialogOpen(true)}
+            className={`transition-transform duration-300 ${loaded ? 'scale-100' : 'scale-95 opacity-0'} hover:bg-primary/90 hover:-translate-y-1`}
+          >
+            Add New Turf
+          </Button>
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
+          <Card className="dashboard-item transition-all duration-300 hover:shadow-md hover:-translate-y-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
               <span className="text-muted-foreground">₹</span>
@@ -38,7 +80,7 @@ export default function AdminDashboard() {
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="dashboard-item transition-all duration-300 hover:shadow-md hover:-translate-y-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Turf Bookings</CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -50,7 +92,7 @@ export default function AdminDashboard() {
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="dashboard-item transition-all duration-300 hover:shadow-md hover:-translate-y-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Turfs</CardTitle>
               <BarChart className="h-4 w-4 text-muted-foreground" />
@@ -62,7 +104,7 @@ export default function AdminDashboard() {
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="dashboard-item transition-all duration-300 hover:shadow-md hover:-translate-y-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Users</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
@@ -76,7 +118,7 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        <div className="mt-8">
+        <div className="mt-8 reveal">
           <Tabs defaultValue="bookings">
             <TabsList className="w-full md:w-auto">
               <TabsTrigger value="bookings">Recent Bookings</TabsTrigger>
@@ -91,7 +133,7 @@ export default function AdminDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="rounded-md border p-4 hover-scale">
+                    <div className="rounded-md border p-4 transition-all duration-300 hover:shadow-md hover:border-primary/20">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">Green Valley Football Turf</p>
@@ -103,10 +145,10 @@ export default function AdminDashboard() {
                             <span>6:00 PM</span>
                           </div>
                         </div>
-                        <Badge className="bg-green-100 text-green-800">Paid</Badge>
+                        <Badge className="bg-green-100 text-green-800 transition-all duration-300 hover:scale-105">Paid</Badge>
                       </div>
                     </div>
-                    <div className="rounded-md border p-4 fade-in">
+                    <div className="rounded-md border p-4 transition-all duration-300 hover:shadow-md hover:border-primary/20">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">City Hoops Basketball Court</p>
@@ -118,10 +160,10 @@ export default function AdminDashboard() {
                             <span>7:00 PM</span>
                           </div>
                         </div>
-                        <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>
+                        <Badge className="bg-yellow-100 text-yellow-800 transition-all duration-300 hover:scale-105">Pending</Badge>
                       </div>
                     </div>
-                    <div className="rounded-md border p-4 fade-in">
+                    <div className="rounded-md border p-4 transition-all duration-300 hover:shadow-md hover:border-primary/20">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">Smash Point Tennis Club</p>
@@ -133,7 +175,7 @@ export default function AdminDashboard() {
                             <span>5:00 PM</span>
                           </div>
                         </div>
-                        <Badge className="bg-green-100 text-green-800">Paid</Badge>
+                        <Badge className="bg-green-100 text-green-800 transition-all duration-300 hover:scale-105">Paid</Badge>
                       </div>
                     </div>
                   </div>
