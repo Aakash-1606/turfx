@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { handleError, validateInput } from "@/lib/errorHandler";
 import { loginSchema, LoginFormData } from "@/lib/validationSchemas";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
+
+const INVALID_CREDENTIALS_MSG = 'Invalid login credentials';
+const EMAIL_NOT_CONFIRMED_MSG = 'Email not confirmed';
 
 export default function Login() {
   const [formData, setFormData] = useState<LoginFormData>({
@@ -28,15 +31,14 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // Validate input
       const validatedData = validateInput(formData, loginSchema);
       
       const { error } = await signIn(validatedData.email, validatedData.password);
 
       if (error) {
-        if (error.message.includes('Invalid login credentials')) {
+        if (error.message.includes(INVALID_CREDENTIALS_MSG)) {
           toast.error('Invalid email or password');
-        } else if (error.message.includes('Email not confirmed')) {
+        } else if (error.message.includes(EMAIL_NOT_CONFIRMED_MSG)) {
           toast.error('Please confirm your email before signing in');
         } else {
           handleError(error, 'Login failed');
