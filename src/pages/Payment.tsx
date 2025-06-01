@@ -13,38 +13,29 @@ import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, Clock, MapPin, CreditCard, Wallet, WalletCards } from "lucide-react";
 import { format } from "date-fns";
 import { BookingConfirmationDialog } from "@/components/BookingConfirmationDialog";
-import { createBooking } from "@/services/bookingService";
-import { getCurrentUser } from "@/auth";
+import { createSecureBooking } from "@/services/secureBookingService";
+import { useAuth } from "@/contexts/AuthContext";
+import { handleError, validateInput } from "@/lib/errorHandler";
+import { bookingSchema } from "@/lib/validationSchemas";
 
 export default function Payment() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
   const bookingData = location.state?.bookingData || {};
   
   const [paymentMethod, setPaymentMethod] = useState<string>("card");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
-  const [userId, setUserId] = useState<string | null>(null);
   const [completedBooking, setCompletedBooking] = useState(null);
   
   useEffect(() => {
-    async function fetchCurrentUser() {
-      try {
-        const user = await getCurrentUser();
-        if (!user) {
-          toast.error("Please login to continue");
-          navigate("/login", { state: { from: location.pathname } });
-          return;
-        }
-        setUserId(user.id);
-      } catch (error) {
-        console.error("Error fetching user:", error);
-        toast.error("Authentication error");
-      }
+    if (!isAuthenticated) {
+      toast.error("Please login to continue");
+      navigate("/login", { state: { from: location.pathname } });
+      return;
     }
-    
-    fetchCurrentUser();
-  }, [navigate, location.pathname]);
+  }, [isAuthenticated, navigate, location.pathname]);
   
   if (!bookingData.turfId) {
     // Redirect if no booking data is available
@@ -53,7 +44,7 @@ export default function Payment() {
   }
   
   const handlePayment = async () => {
-    if (!userId) {
+    if (!isAuthenticated) {
       toast.error("Please login to continue");
       return;
     }
@@ -66,23 +57,28 @@ export default function Payment() {
         ? bookingData.date.toISOString().split('T')[0]
         : new Date().toISOString().split('T')[0];
       
-      // Create the booking in Supabase
-      const newBooking = {
-        user_id: userId,
-        turf_id: bookingData.turfId,
+      // Validate booking data
+      const bookingPayload = {
+        turfId: bookingData.turfId,
         date: formattedDate,
         time: bookingData.time,
         price: bookingData.price,
+      };
+
+      const validatedData = validateInput(bookingPayload, bookingSchema);
+      
+      // Create the booking in Supabase with additional metadata
+      const newBooking = {
+        ...validatedData,
         payment_method: paymentMethod,
         status: paymentMethod === 'venue' ? 'pending' : 'confirmed'
       };
       
-      const [createdBooking] = await createBooking(newBooking);
+      const [createdBooking] = await createSecureBooking(newBooking);
       setCompletedBooking(createdBooking);
       setShowConfirmation(true);
     } catch (error) {
-      console.error("Error creating booking:", error);
-      toast.error("Failed to complete booking");
+      handleError(error, "Failed to complete booking");
     } finally {
       setIsProcessing(false);
     }

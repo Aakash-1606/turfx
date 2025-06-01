@@ -1,27 +1,59 @@
+
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Layout } from "@/components/layout/Layout";
-import { supabase } from "@/lib/supabaseClient"; // Make sure this file exists
+import { useAuth } from "@/contexts/AuthContext";
+import { handleError, validateInput } from "@/lib/errorHandler";
+import { loginSchema, LoginFormData } from "@/lib/validationSchemas";
+import { toast } from "sonner";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState<LoginFormData>({
+    email: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
-  const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
 
-    if (error) {
-      alert("Login failed: " + error.message);
-    } else {
-      alert("Login successful!");
-      // TODO: Redirect to homepage or dashboard
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // Validate input
+      const validatedData = validateInput(formData, loginSchema);
+      
+      const { error } = await signIn(validatedData.email, validatedData.password);
+
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          toast.error('Invalid email or password');
+        } else if (error.message.includes('Email not confirmed')) {
+          toast.error('Please confirm your email before signing in');
+        } else {
+          handleError(error, 'Login failed');
+        }
+      } else {
+        toast.success("Login successful!");
+        navigate(from, { replace: true });
+      }
+    } catch (error) {
+      handleError(error, 'Login failed');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleInputChange = (field: keyof LoginFormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -34,7 +66,7 @@ export default function Login() {
               Enter your credentials to sign in to your account
             </p>
           </div>
-          <div className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
               <label
                 htmlFor="email"
@@ -46,11 +78,13 @@ export default function Login() {
                 id="email"
                 placeholder="m@example.com"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
                 autoCapitalize="none"
                 autoComplete="email"
                 autoCorrect="off"
+                required
+                disabled={loading}
               />
             </div>
             <div className="space-y-2">
@@ -71,12 +105,18 @@ export default function Login() {
               <Input
                 id="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.password}
+                onChange={(e) => handleInputChange('password', e.target.value)}
+                required
+                disabled={loading}
               />
             </div>
             <div className="flex items-center space-x-2">
-              <Checkbox id="remember" />
+              <Checkbox 
+                id="remember" 
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+              />
               <label
                 htmlFor="remember"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -84,10 +124,14 @@ export default function Login() {
                 Remember me
               </label>
             </div>
-            <Button className="w-full" onClick={handleLogin}>
-              Sign In
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={loading}
+            >
+              {loading ? "Signing in..." : "Sign In"}
             </Button>
-          </div>
+          </form>
           <div className="text-center text-sm">
             Don't have an account?{" "}
             <Link

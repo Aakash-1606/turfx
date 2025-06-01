@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -11,42 +10,30 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import { getUserBookings, cancelBooking } from "@/services/bookingService";
-import { getCurrentUser } from "@/auth";
+import { getUserSecureBookings, cancelSecureBooking } from "@/services/secureBookingService";
+import { useAuth } from "@/contexts/AuthContext";
+import { handleError } from "@/lib/errorHandler";
 
 export default function Bookings() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState(null);
   const [animationStarted, setAnimationStarted] = useState(false);
   const contentRef = useRef(null);
 
   useEffect(() => {
-    async function fetchCurrentUser() {
-      try {
-        const user = await getCurrentUser();
-        if (!user) {
-          navigate("/login");
-          return;
-        }
-        setUserId(user.id);
-        return user.id;
-      } catch (error) {
-        console.error("Error fetching current user:", error);
-        return null;
-      }
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
     }
 
-    async function fetchBookings(uid) {
-      if (!uid) return;
-      
+    async function fetchBookings() {
       try {
-        const data = await getUserBookings(uid);
+        const data = await getUserSecureBookings();
         setBookings(data);
       } catch (error) {
-        console.error("Error fetching bookings:", error);
-        toast.error("Failed to load bookings");
+        handleError(error, "Failed to load bookings");
       } finally {
         setLoading(false);
         // Start animations after data is loaded
@@ -56,9 +43,7 @@ export default function Bookings() {
       }
     }
 
-    fetchCurrentUser().then(uid => {
-      if (uid) fetchBookings(uid);
-    });
+    fetchBookings();
     
     // Set up intersection observer for reveal animations
     const observer = new IntersectionObserver(
@@ -84,7 +69,7 @@ export default function Bookings() {
     return () => {
       observer.disconnect();
     };
-  }, [navigate]);
+  }, [navigate, isAuthenticated]);
 
   const upcomingBookings = bookings.filter(
     (booking) => new Date(booking.date) >= new Date()
@@ -96,12 +81,11 @@ export default function Bookings() {
 
   const handleCancelBooking = async (bookingId) => {
     try {
-      await cancelBooking(bookingId);
+      await cancelSecureBooking(bookingId);
       setBookings(bookings.filter(booking => booking.id !== bookingId));
       toast.success("Booking cancelled successfully");
     } catch (error) {
-      console.error("Error cancelling booking:", error);
-      toast.error("Failed to cancel booking");
+      handleError(error, "Failed to cancel booking");
     }
   };
 
