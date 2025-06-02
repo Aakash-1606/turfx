@@ -1,8 +1,10 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 import Index from "./pages/Index";
 import BrowseTurfs from "./pages/BrowseTurfs";
@@ -26,60 +28,62 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          {/* 🔀 Redirect based on role when visiting "/" */}
-          <Route path="/" element={<RoleRedirect />} />
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            {/* 🔀 Redirect based on role when visiting "/" */}
+            <Route path="/" element={<RoleRedirect />} />
 
-          {/* 🌐 Public Routes */}
-          <Route path="/browse" element={<BrowseTurfs />} />
-          <Route path="/turf/:id" element={<TurfDetail />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/how-it-works" element={<HowItWorks />} />
-          <Route path="/about" element={<About />} />
+            {/* 🌐 Public Routes */}
+            <Route path="/browse" element={<BrowseTurfs />} />
+            <Route path="/turf/:id" element={<TurfDetail />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/about" element={<About />} />
 
-          {/* 🔒 Protected Routes */}
-          <Route
-            path="/bookings"
-            element={
-              <ProtectedRoute allowedRoles={["customer"]}>
-                <Bookings />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/payment"
-            element={
-              <ProtectedRoute allowedRoles={["customer"]}>
-                <Payment />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/owner"
-            element={
-              <ProtectedRoute allowedRoles={["turf_owner"]}>
-                <OwnerDashboard />
-              </ProtectedRoute>
-            }
-          />
+            {/* 🔒 Protected Routes */}
+            <Route
+              path="/bookings"
+              element={
+                <ProtectedRoute allowedRoles={["customer"]}>
+                  <Bookings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payment"
+              element={
+                <ProtectedRoute allowedRoles={["customer"]}>
+                  <Payment />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/owner"
+              element={
+                <ProtectedRoute allowedRoles={["turf_owner"]}>
+                  <OwnerDashboard />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* 🚫 Catch-all */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+            {/* 🚫 Catch-all */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
