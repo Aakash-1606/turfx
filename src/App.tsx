@@ -1,3 +1,4 @@
+
 // App.tsx
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -34,8 +35,11 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* 🔀 Role-based redirection */}
-            <Route path="/" element={<RoleRedirect />} />
+            {/* 🏠 Home page - original Index */}
+            <Route path="/" element={<Index />} />
+
+            {/* 🔀 Role-based redirection for authenticated users */}
+            <Route path="/dashboard" element={<RoleRedirect />} />
 
             {/* 🌐 Public Routes */}
             <Route path="/browse" element={<BrowseTurfs />} />
