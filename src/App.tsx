@@ -19,6 +19,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import Payment from "./pages/Payment";
 import NotFound from "./pages/NotFound";
+import CustomerHome from "./pages/CustomerHome";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { RoleRedirect } from "@/components/RoleRedirect";
@@ -47,6 +48,14 @@ const App = () => (
 
             {/* 🔒 Protected Routes */}
             <Route
+              path="/customer/home"
+              element={
+                <ProtectedRoute allowedRoles={["customer"]}>
+                  <CustomerHome />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/bookings"
               element={
                 <ProtectedRoute allowedRoles={["customer"]}>
@@ -63,7 +72,7 @@ const App = () => (
               }
             />
             <Route
-              path="/admin"
+              path="/admin/dashboard"
               element={
                 <ProtectedRoute allowedRoles={["admin"]}>
                   <AdminDashboard />
@@ -71,7 +80,7 @@ const App = () => (
               }
             />
             <Route
-              path="/owner"
+              path="/owner/dashboard"
               element={
                 <ProtectedRoute allowedRoles={["turf_owner"]}>
                   <OwnerDashboard />
