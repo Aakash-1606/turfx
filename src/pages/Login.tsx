@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { handleError, validateInput } from "@/lib/errorHandler";
 import { loginSchema, LoginFormData } from "@/lib/validationSchemas";
 import { toast } from "sonner";
-import { Link } from "react-router-dom";
 
 const INVALID_CREDENTIALS_MSG = 'Invalid login credentials';
 const EMAIL_NOT_CONFIRMED_MSG = 'Email not confirmed';
