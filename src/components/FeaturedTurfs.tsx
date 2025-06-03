@@ -1,6 +1,6 @@
 
 import { TurfCard } from "./TurfCard";
-import { Turf } from "@/data/mockData";
+import { Turf } from "@/services/turfService";
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 

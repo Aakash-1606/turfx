@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -63,6 +62,7 @@ export function TurfDetailsDialog({ open, onOpenChange, isEdit = false, turfData
         await updateTurf(turfData.id, turfPayload);
         toast.success("Turf updated successfully!");
       } else {
+        // For addTurf, the owner_id will be automatically added in the service
         await addTurf(turfPayload);
         toast.success("Turf added successfully!");
       }
