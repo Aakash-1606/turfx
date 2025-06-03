@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,6 +28,8 @@ export function TurfDetailsDialog({ open, onOpenChange, isEdit = false, turfData
     name: turfData?.name || "",
     location: turfData?.location || "",
     price: turfData?.price || 500,
+    price_per_hour: turfData?.price_per_hour || 500,
+    capacity: turfData?.capacity || 22,
     description: turfData?.description || "",
     sport: turfData?.sport || "Football",
     amenities: turfData?.amenities?.join(", ") || "Parking, Changing Rooms, Floodlights",
@@ -52,6 +55,8 @@ export function TurfDetailsDialog({ open, onOpenChange, isEdit = false, turfData
         location: formData.location,
         sport: formData.sport,
         price: formData.price,
+        price_per_hour: formData.price_per_hour,
+        capacity: formData.capacity,
         description: formData.description,
         image: formData.image,
         amenities: formData.amenities.split(",").map(a => a.trim()).filter(a => a),
@@ -124,6 +129,32 @@ export function TurfDetailsDialog({ open, onOpenChange, isEdit = false, turfData
               onChange={(e) => handleChange("price", parseInt(e.target.value))}
               className="col-span-3"
               placeholder="500"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="price_per_hour" className="text-right">
+              Price/Hour (₹) *
+            </Label>
+            <Input
+              id="price_per_hour"
+              type="number"
+              value={formData.price_per_hour}
+              onChange={(e) => handleChange("price_per_hour", parseInt(e.target.value))}
+              className="col-span-3"
+              placeholder="500"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="capacity" className="text-right">
+              Capacity *
+            </Label>
+            <Input
+              id="capacity"
+              type="number"
+              value={formData.capacity}
+              onChange={(e) => handleChange("capacity", parseInt(e.target.value))}
+              className="col-span-3"
+              placeholder="22"
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
