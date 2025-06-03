@@ -11,43 +11,70 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
+import { addTurf, updateTurf, Turf } from "@/services/turfService";
+import { toast } from "sonner";
 
 export type TurfDetailsProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isEdit?: boolean;
-  turfData?: {
-    name?: string;
-    location?: string;
-    price?: number;
-    description?: string;
-    sportsAvailable?: string[];
-    amenities?: string[];
-    imageUrl?: string;
-  };
+  turfData?: Turf | null;
+  onSave: () => void;
 };
 
-export function TurfDetailsDialog({ open, onOpenChange, isEdit = false, turfData = {} }: TurfDetailsProps) {
+export function TurfDetailsDialog({ open, onOpenChange, isEdit = false, turfData = null, onSave }: TurfDetailsProps) {
   const [formData, setFormData] = useState({
-    name: turfData.name || "",
-    location: turfData.location || "",
-    price: turfData.price || 500,
-    description: turfData.description || "",
-    sports: turfData.sportsAvailable?.join(", ") || "Football, Cricket",
-    amenities: turfData.amenities?.join(", ") || "Parking, Changing Rooms, Floodlights",
-    imageUrl: turfData.imageUrl || "",
+    name: turfData?.name || "",
+    location: turfData?.location || "",
+    price: turfData?.price || 500,
+    description: turfData?.description || "",
+    sport: turfData?.sport || "Football",
+    amenities: turfData?.amenities?.join(", ") || "Parking, Changing Rooms, Floodlights",
+    image: turfData?.image || "",
   });
+
+  const [saving, setSaving] = useState(false);
 
   const handleChange = (field: string, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = () => {
-    // In a real application, this would send data to an API
-    console.log("Submitted turf data:", formData);
-    onOpenChange(false);
+  const handleSubmit = async () => {
+    if (!formData.name || !formData.location || !formData.sport) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const turfPayload = {
+        name: formData.name,
+        location: formData.location,
+        sport: formData.sport,
+        price: formData.price,
+        description: formData.description,
+        image: formData.image,
+        amenities: formData.amenities.split(",").map(a => a.trim()).filter(a => a),
+        rating: turfData?.rating || 4.0,
+      };
+
+      if (isEdit && turfData) {
+        await updateTurf(turfData.id, turfPayload);
+        toast.success("Turf updated successfully!");
+      } else {
+        await addTurf(turfPayload);
+        toast.success("Turf added successfully!");
+      }
+
+      onSave();
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error saving turf:", error);
+      toast.error("Failed to save turf. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -64,7 +91,7 @@ export function TurfDetailsDialog({ open, onOpenChange, isEdit = false, turfData
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">
-              Name
+              Name *
             </Label>
             <Input
               id="name"
@@ -76,7 +103,7 @@ export function TurfDetailsDialog({ open, onOpenChange, isEdit = false, turfData
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="location" className="text-right">
-              Location
+              Location *
             </Label>
             <Input
               id="location"
@@ -88,7 +115,7 @@ export function TurfDetailsDialog({ open, onOpenChange, isEdit = false, turfData
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="price" className="text-right">
-              Price (₹)
+              Price (₹) *
             </Label>
             <Input
               id="price"
@@ -100,15 +127,15 @@ export function TurfDetailsDialog({ open, onOpenChange, isEdit = false, turfData
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="sports" className="text-right">
-              Sports
+            <Label htmlFor="sport" className="text-right">
+              Sport *
             </Label>
             <Input
-              id="sports"
-              value={formData.sports}
-              onChange={(e) => handleChange("sports", e.target.value)}
+              id="sport"
+              value={formData.sport}
+              onChange={(e) => handleChange("sport", e.target.value)}
               className="col-span-3"
-              placeholder="Football, Cricket, etc."
+              placeholder="Football"
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
@@ -129,8 +156,8 @@ export function TurfDetailsDialog({ open, onOpenChange, isEdit = false, turfData
             </Label>
             <Input
               id="image"
-              value={formData.imageUrl}
-              onChange={(e) => handleChange("imageUrl", e.target.value)}
+              value={formData.image}
+              onChange={(e) => handleChange("image", e.target.value)}
               className="col-span-3"
               placeholder="https://example.com/image.jpg"
             />
@@ -150,11 +177,11 @@ export function TurfDetailsDialog({ open, onOpenChange, isEdit = false, turfData
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
             Cancel
           </Button>
-          <Button type="submit" onClick={handleSubmit}>
-            {isEdit ? "Update" : "Add"} Turf
+          <Button type="submit" onClick={handleSubmit} disabled={saving}>
+            {saving ? "Saving..." : isEdit ? "Update" : "Add"} Turf
           </Button>
         </DialogFooter>
       </DialogContent>

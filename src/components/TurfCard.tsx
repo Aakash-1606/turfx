@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Turf } from "@/data/mockData";
+import { Turf } from "@/services/turfService";
 import { MapPin, Star, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -15,7 +15,7 @@ export function TurfCard({ turf }: TurfCardProps) {
       <Card className="overflow-hidden transition-all hover:shadow-md">
         <div className="aspect-video w-full overflow-hidden">
           <img
-            src={turf.image}
+            src={turf.image || "/placeholder.svg"}
             alt={turf.name}
             className="h-full w-full object-cover transition-transform hover:scale-105"
             loading="lazy"
