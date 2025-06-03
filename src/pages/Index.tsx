@@ -3,18 +3,39 @@ import { Layout } from "@/components/layout/Layout";
 import { HeroSection } from "@/components/HeroSection";
 import { FeaturedTurfs } from "@/components/FeaturedTurfs";
 import { SportsCategories } from "@/components/SportsCategories";
-import { turfs } from "@/data/mockData";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon, Clock, MapPin, Smartphone } from "lucide-react";
+import { useState, useEffect } from "react";
+import { getAllTurfs, Turf } from "@/services/turfService";
 
 export default function Index() {
+  const [turfs, setTurfs] = useState<Turf[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchTurfs() {
+      try {
+        const data = await getAllTurfs();
+        setTurfs(data.slice(0, 8)); // Show only first 8 turfs as featured
+      } catch (error) {
+        console.error("Error fetching turfs:", error);
+        // Fallback to empty array on error
+        setTurfs([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchTurfs();
+  }, []);
+
   return (
     <Layout>
       <HeroSection />
       
       <SportsCategories />
       
-      <FeaturedTurfs turfs={turfs} />
+      {!loading && <FeaturedTurfs turfs={turfs} />}
       
       <section className="py-16 bg-background">
         <div className="container">

@@ -48,7 +48,7 @@ export const getTurfById = async (id: string): Promise<Turf | null> => {
 };
 
 // Add a new turf (for turf owners)
-export const addTurf = async (turfData: Omit<Turf, 'id' | 'created_at' | 'updated_at'>): Promise<Turf> => {
+export const addTurf = async (turfData: Omit<Turf, 'id' | 'owner_id' | 'created_at' | 'updated_at'>): Promise<Turf> => {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
