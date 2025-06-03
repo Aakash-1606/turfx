@@ -1,7 +1,23 @@
-import { supabase } from '../supabaseClient';
+
+import { supabase } from '@/lib/supabaseClient';
+
+export interface Turf {
+  id: string;
+  owner_id: string;
+  name: string;
+  location: string;
+  sport: string;
+  price: number;
+  description?: string;
+  image?: string;
+  amenities: string[];
+  rating: number;
+  created_at: string;
+  updated_at: string;
+}
 
 // Get all turfs
-export const getAllTurfs = async () => {
+export const getAllTurfs = async (): Promise<Turf[]> => {
   const { data, error } = await supabase
     .from('turfs')
     .select('*')
@@ -16,7 +32,7 @@ export const getAllTurfs = async () => {
 };
 
 // Get a single turf by ID
-export const getTurfById = async (id) => {
+export const getTurfById = async (id: string): Promise<Turf | null> => {
   const { data, error } = await supabase
     .from('turfs')
     .select('*')
@@ -32,7 +48,7 @@ export const getTurfById = async (id) => {
 };
 
 // Add a new turf (for turf owners)
-export const addTurf = async (turfData) => {
+export const addTurf = async (turfData: Omit<Turf, 'id' | 'created_at' | 'updated_at'>): Promise<Turf> => {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
@@ -45,7 +61,8 @@ export const addTurf = async (turfData) => {
       ...turfData,
       owner_id: user.id,
     }])
-    .select();
+    .select()
+    .single();
   
   if (error) {
     console.error('Error adding turf:', error);
@@ -56,7 +73,7 @@ export const addTurf = async (turfData) => {
 };
 
 // Update a turf
-export const updateTurf = async (id, turfData) => {
+export const updateTurf = async (id: string, turfData: Partial<Omit<Turf, 'id' | 'owner_id' | 'created_at' | 'updated_at'>>): Promise<Turf> => {
   const { data, error } = await supabase
     .from('turfs')
     .update({
@@ -64,7 +81,8 @@ export const updateTurf = async (id, turfData) => {
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)
-    .select();
+    .select()
+    .single();
   
   if (error) {
     console.error('Error updating turf:', error);
@@ -75,7 +93,7 @@ export const updateTurf = async (id, turfData) => {
 };
 
 // Delete a turf
-export const deleteTurf = async (id) => {
+export const deleteTurf = async (id: string): Promise<void> => {
   const { error } = await supabase
     .from('turfs')
     .delete()
@@ -88,7 +106,7 @@ export const deleteTurf = async (id) => {
 };
 
 // Get turfs by owner
-export const getTurfsByOwner = async (ownerId) => {
+export const getTurfsByOwner = async (ownerId: string): Promise<Turf[]> => {
   const { data, error } = await supabase
     .from('turfs')
     .select('*')

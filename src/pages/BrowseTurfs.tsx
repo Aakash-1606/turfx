@@ -3,15 +3,15 @@ import { useState, useEffect, useRef } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { TurfCard } from "@/components/TurfCard";
 import { FilterBar } from "@/components/FilterBar";
-import { getAllTurfs } from "@/services/turfService";
+import { getAllTurfs, Turf } from "@/services/turfService";
 import { toast } from "sonner";
 
 export default function BrowseTurfs() {
-  const [turfs, setTurfs] = useState([]);
-  const [filteredTurfs, setFilteredTurfs] = useState([]);
+  const [turfs, setTurfs] = useState<Turf[]>([]);
+  const [filteredTurfs, setFilteredTurfs] = useState<Turf[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedSport, setSelectedSport] = useState(null);
-  const parallaxRef = useRef(null);
+  const [selectedSport, setSelectedSport] = useState<string | null>(null);
+  const parallaxRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     async function fetchTurfs() {

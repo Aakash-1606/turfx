@@ -1,50 +1,70 @@
+
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { BarChart, Calendar, Clock } from "lucide-react";
+import { BarChart, Calendar, Clock, Plus, Pencil, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { TurfDetailsDialog } from "@/components/TurfDetailsDialog";
-import { supabase } from "@/lib/supabaseClient"; // Make sure you import your supabase client
+import { getTurfsByOwner, deleteTurf, Turf } from "@/services/turfService";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 export default function OwnerDashboard() {
+  const { user } = useAuth();
   const [turfDialogOpen, setTurfDialogOpen] = useState(false);
-  const [turfs, setTurfs] = useState<any[]>([]);
+  const [selectedTurf, setSelectedTurf] = useState<Turf | null>(null);
+  const [turfs, setTurfs] = useState<Turf[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Step 2.3: Fetch turfs owned by the logged-in user
   const fetchTurfs = async () => {
+    if (!user) return;
+    
     setLoading(true);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      setTurfs([]);
-      setLoading(false);
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from("turfs")
-      .select("*")
-      .eq("owner_id", user.id);
-
-    if (error) {
-      console.error("Error fetching turfs:", error);
-      setTurfs([]);
-    } else {
+    try {
+      const data = await getTurfsByOwner(user.id);
       setTurfs(data);
+    } catch (error) {
+      console.error("Error fetching turfs:", error);
+      toast.error("Failed to fetch turfs");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  // Step 2.4: Call fetchTurfs on component mount
   useEffect(() => {
     fetchTurfs();
-  }, []);
+  }, [user]);
+
+  const handleAddTurf = () => {
+    setSelectedTurf(null);
+    setTurfDialogOpen(true);
+  };
+
+  const handleEditTurf = (turf: Turf) => {
+    setSelectedTurf(turf);
+    setTurfDialogOpen(true);
+  };
+
+  const handleDeleteTurf = async (turfId: string) => {
+    if (!confirm("Are you sure you want to delete this turf?")) return;
+    
+    try {
+      await deleteTurf(turfId);
+      toast.success("Turf deleted successfully");
+      fetchTurfs(); // Refresh the list
+    } catch (error) {
+      console.error("Error deleting turf:", error);
+      toast.error("Failed to delete turf");
+    }
+  };
+
+  const handleTurfSaved = () => {
+    fetchTurfs(); // Refresh the list after adding/updating
+    setTurfDialogOpen(false);
+  };
 
   return (
     <Layout>
@@ -56,12 +76,25 @@ export default function OwnerDashboard() {
               Manage your turfs, bookings, and earnings
             </p>
           </div>
-          <Button onClick={() => setTurfDialogOpen(true)}>
-            Update Turf Details
+          <Button onClick={handleAddTurf}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add New Turf
           </Button>
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Turfs</CardTitle>
+              <span className="text-muted-foreground">🏟️</span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{turfs.length}</div>
+              <p className="text-xs text-muted-foreground">
+                Active turf listings
+              </p>
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
@@ -86,79 +119,92 @@ export default function OwnerDashboard() {
               </p>
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Booking Hours</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">86 hrs</div>
-              <p className="text-xs text-muted-foreground">
-                +12% from last month
-              </p>
-            </CardContent>
-          </Card>
         </div>
 
-        {/* NEW: Display fetched turfs */}
         <div className="mt-10">
           <h2 className="text-2xl font-semibold mb-4">Your Turfs</h2>
           {loading ? (
-            <p>Loading turfs...</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <Card key={i} className="animate-pulse">
+                  <CardHeader>
+                    <div className="h-6 bg-muted rounded w-3/4"></div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="h-4 bg-muted rounded w-full"></div>
+                      <div className="h-4 bg-muted rounded w-2/3"></div>
+                      <div className="h-10 bg-muted rounded w-full mt-4"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           ) : turfs.length === 0 ? (
-            <p>No turfs found. Please add your turf details.</p>
+            <Card className="text-center py-12">
+              <CardContent>
+                <h3 className="text-xl mb-2">No turfs found</h3>
+                <p className="text-muted-foreground mb-4">
+                  Start by adding your first turf listing.
+                </p>
+                <Button onClick={handleAddTurf}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Your First Turf
+                </Button>
+              </CardContent>
+            </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {turfs.map((turf) => (
                 <Card key={turf.id}>
                   <CardHeader>
-                    <CardTitle>{turf.name}</CardTitle>
+                    <div className="flex items-start justify-between">
+                      <CardTitle className="text-lg">{turf.name}</CardTitle>
+                      <Badge variant="secondary">{turf.sport}</Badge>
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <p><strong>Location:</strong> {turf.location}</p>
-                    <p><strong>Price:</strong> ₹{turf.price}</p>
-                    <p className="mt-2">{turf.description}</p>
-                    {/* Add button to open TurfDetailsDialog if needed */}
-                    <Button
-                      className="mt-4"
-                      onClick={() => {
-                        setTurfDialogOpen(true);
-                        // Optionally pass this turf's data to dialog
-                      }}
-                    >
-                      Edit Turf
-                    </Button>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      <strong>Location:</strong> {turf.location}
+                    </p>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      <strong>Price:</strong> ₹{turf.price}/hr
+                    </p>
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                      {turf.description}
+                    </p>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditTurf(turf)}
+                        className="flex-1"
+                      >
+                        <Pencil className="mr-2 h-3 w-3" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDeleteTurf(turf.id)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
           )}
         </div>
-
-        {/* Your Tabs & Booking sections remain unchanged */}
-        <div className="mt-8">
-          {/* ... your existing Tabs code here ... */}
-        </div>
       </div>
 
-      {/* You can modify TurfDetailsDialog to accept dynamic turf data if you want */}
       <TurfDetailsDialog
         open={turfDialogOpen}
         onOpenChange={setTurfDialogOpen}
-        isEdit={true}
-        turfData={
-          turfs.length > 0
-            ? turfs[0]
-            : {
-                name: "Green Valley Football Turf",
-                location: "Mahavishnu Nagar, Mortandi",
-                price: 500,
-                description: "A premium football turf with well-maintained grass and excellent facilities.",
-                sportsAvailable: ["Football", "Cricket"],
-                amenities: ["Parking", "Changing Rooms", "Floodlights", "Water"],
-                imageUrl: "/placeholder.svg",
-              }
-        }
+        isEdit={!!selectedTurf}
+        turfData={selectedTurf}
+        onSave={handleTurfSaved}
       />
     </Layout>
   );

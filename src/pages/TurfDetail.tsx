@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -14,13 +13,14 @@ import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { getTurfById } from "@/services/turfService";
+import { getTurfById, Turf } from "@/services/turfService";
+import { checkAvailability } from "@/services/bookingService";
 
 export default function TurfDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  const [turf, setTurf] = useState(null);
+  const [turf, setTurf] = useState<Turf | null>(null);
   const [loading, setLoading] = useState(true);
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(
@@ -28,6 +28,7 @@ export default function TurfDetail() {
   );
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [contentVisible, setContentVisible] = useState(false);
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
   const descriptionRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
@@ -78,11 +79,28 @@ export default function TurfDetail() {
     };
   }, [id]);
   
-  const handleDateChange = (newDate: Date | undefined) => {
-    if (newDate) {
+  const handleDateChange = async (newDate: Date | undefined) => {
+    if (newDate && turf) {
       setDate(newDate);
       setTimeSlots(generateTimeSlots(newDate));
       setSelectedSlot(null);
+      
+      // Check availability for all time slots
+      setCheckingAvailability(true);
+      const updatedSlots = await Promise.all(
+        generateTimeSlots(newDate).map(async (slot) => {
+          const endTime = format(new Date(`2000-01-01 ${slot.time}`).getTime() + 60 * 60 * 1000, 'HH:mm');
+          const available = await checkAvailability(
+            turf.id,
+            format(newDate, 'yyyy-MM-dd'),
+            slot.time,
+            endTime
+          );
+          return { ...slot, available };
+        })
+      );
+      setTimeSlots(updatedSlots);
+      setCheckingAvailability(false);
     }
   };
   
@@ -92,14 +110,19 @@ export default function TurfDetail() {
       return;
     }
     
-    // Instead of directly navigating to bookings, send to payment page with booking data
+    if (!selectedSlot.available) {
+      toast.error("Selected time slot is not available");
+      return;
+    }
+    
+    // Navigate to payment page with booking data
     const bookingData = {
-      turfId: turf.id,
-      turfName: turf.name,
-      turfLocation: turf.location,
-      turfImage: turf.image,
-      turfSport: turf.sport,
-      price: turf.price,
+      turfId: turf!.id,
+      turfName: turf!.name,
+      turfLocation: turf!.location,
+      turfImage: turf!.image,
+      turfSport: turf!.sport,
+      price: turf!.price,
       date: date,
       time: selectedSlot.time
     };
@@ -163,7 +186,7 @@ export default function TurfDetail() {
           <div className="md:col-span-2 space-y-6">
             <div className={`aspect-video w-full overflow-hidden rounded-lg shadow-md transition-all duration-700 ${contentVisible ? 'slide-in-left opacity-100' : 'translate-x-[-50px] opacity-0'}`}>
               <img
-                src={turf.image}
+                src={turf.image || "/placeholder.svg"}
                 alt={turf.name}
                 className="h-full w-full object-cover"
               />
@@ -271,11 +294,18 @@ export default function TurfDetail() {
                 </TabsContent>
                 
                 <TabsContent value="slots" className="pt-4">
-                  <TimeSlotGrid 
-                    timeSlots={timeSlots}
-                    selectedSlot={selectedSlot}
-                    onSlotSelect={setSelectedSlot}
-                  />
+                  {checkingAvailability ? (
+                    <div className="text-center py-4">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
+                      <p className="mt-2 text-sm text-muted-foreground">Checking availability...</p>
+                    </div>
+                  ) : (
+                    <TimeSlotGrid 
+                      timeSlots={timeSlots}
+                      selectedSlot={selectedSlot}
+                      onSlotSelect={setSelectedSlot}
+                    />
+                  )}
                 </TabsContent>
               </Tabs>
               
@@ -283,7 +313,7 @@ export default function TurfDetail() {
                 <Button
                   onClick={handleBooking}
                   className={`w-full transition-all duration-300 ${selectedSlot ? 'pulse' : ''}`}
-                  disabled={!selectedSlot}
+                  disabled={!selectedSlot || !selectedSlot.available || checkingAvailability}
                 >
                   Pay ₹{turf.price} & Book Now
                 </Button>
