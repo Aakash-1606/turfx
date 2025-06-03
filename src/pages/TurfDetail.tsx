@@ -14,7 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { getTurfById, Turf } from "@/services/turfService";
-import { checkAvailability } from "@/services/bookingService";
+import { checkAvailability } from "@/services/bookingService.ts";
 
 export default function TurfDetail() {
   const { id } = useParams<{ id: string }>();
