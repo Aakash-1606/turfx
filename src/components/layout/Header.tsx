@@ -1,11 +1,15 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, User } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { UserProfile } from "@/components/UserProfile";
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const { isAuthenticated, loading } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -35,12 +39,16 @@ export function Header() {
           >
             Browse Turfs
           </Link>
-          <Link
-            to="/bookings"
-            className="text-sm font-medium text-foreground transition-colors hover:text-primary"
-          >
-            My Bookings
-          </Link>
+          {isAuthenticated && (
+            <>
+              <Link
+                to="/bookings"
+                className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+              >
+                My Bookings
+              </Link>
+            </>
+          )}
           <Link
             to="/about"
             className="text-sm font-medium text-foreground transition-colors hover:text-primary"
@@ -50,17 +58,29 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
-          <Link to="/login">
-            <Button variant="outline" size="sm" className="hidden md:flex">
-              <User className="h-4 w-4 mr-2" />
-              Login
-            </Button>
-          </Link>
-          <Link to="/signup">
-            <Button size="sm" className="hidden md:flex">
-              Sign Up
-            </Button>
-          </Link>
+          {!loading && (
+            <>
+              {!isAuthenticated ? (
+                <>
+                  <Link to="/login">
+                    <Button variant="outline" size="sm" className="hidden md:flex">
+                      <User className="h-4 w-4 mr-2" />
+                      Login
+                    </Button>
+                  </Link>
+                  <Link to="/signup">
+                    <Button size="sm" className="hidden md:flex">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <div className="hidden md:flex">
+                  <UserProfile />
+                </div>
+              )}
+            </>
+          )}
 
           {/* Mobile Menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -86,13 +106,15 @@ export function Header() {
                 >
                   Browse Turfs
                 </Link>
-                <Link 
-                  to="/bookings" 
-                  className="text-lg font-medium"
-                  onClick={() => setIsOpen(false)}
-                >
-                  My Bookings
-                </Link>
+                {isAuthenticated && (
+                  <Link 
+                    to="/bookings" 
+                    className="text-lg font-medium"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    My Bookings
+                  </Link>
+                )}
                 <Link 
                   to="/about" 
                   className="text-lg font-medium"
@@ -100,17 +122,27 @@ export function Header() {
                 >
                   About
                 </Link>
-                <div className="flex flex-col gap-2 mt-4">
-                  <Link to="/login" onClick={() => setIsOpen(false)}>
-                    <Button variant="outline" className="w-full">
-                      <User className="h-4 w-4 mr-2" />
-                      Login
-                    </Button>
-                  </Link>
-                  <Link to="/signup" onClick={() => setIsOpen(false)}>
-                    <Button className="w-full">Sign Up</Button>
-                  </Link>
-                </div>
+                {!loading && (
+                  <div className="flex flex-col gap-2 mt-4">
+                    {!isAuthenticated ? (
+                      <>
+                        <Link to="/login" onClick={() => setIsOpen(false)}>
+                          <Button variant="outline" className="w-full">
+                            <User className="h-4 w-4 mr-2" />
+                            Login
+                          </Button>
+                        </Link>
+                        <Link to="/signup" onClick={() => setIsOpen(false)}>
+                          <Button className="w-full">Sign Up</Button>
+                        </Link>
+                      </>
+                    ) : (
+                      <div className="w-full">
+                        <UserProfile />
+                      </div>
+                    )}
+                  </div>
+                )}
               </nav>
             </SheetContent>
           </Sheet>
