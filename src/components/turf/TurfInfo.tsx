@@ -22,10 +22,12 @@ export function TurfInfo({ turf }: TurfInfoProps) {
         <Badge variant="secondary" className="bg-primary/10 text-primary">
           {turf.sport}
         </Badge>
-        <div className="flex items-center">
-          <Users className="mr-1 h-4 w-4" />
-          <span className="text-sm">Up to {turf.capacity} players</span>
-        </div>
+        {turf.capacity && (
+          <div className="flex items-center">
+            <Users className="mr-1 h-4 w-4" />
+            <span className="text-sm">Up to {turf.capacity} players</span>
+          </div>
+        )}
         <div className="flex items-center">
           <Clock className="mr-1 h-4 w-4" />
           <span className="text-sm">₹{turf.price_per_hour}/hour</span>

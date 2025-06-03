@@ -8,9 +8,11 @@ export interface Turf {
   location: string;
   sport: string;
   price: number;
+  price_per_hour: number;
   description?: string;
   image?: string;
   amenities: string[];
+  capacity: number;
   rating: number;
   created_at: string;
   updated_at: string;

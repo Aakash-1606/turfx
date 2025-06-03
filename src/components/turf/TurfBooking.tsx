@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { TimeSlotGrid } from "@/components/TimeSlotGrid";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Turf } from "@/services/turfService";
+import { TimeSlot as TimeSlotType } from "@/data/mockData";
 
 interface TurfBookingProps {
   turf: Turf;
@@ -15,9 +15,25 @@ interface TurfBookingProps {
 
 export function TurfBooking({ turf }: TurfBookingProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [selectedTime, setSelectedTime] = useState<string>("");
+  const [selectedSlot, setSelectedSlot] = useState<TimeSlotType | null>(null);
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+
+  // Mock time slots - in a real app, this would come from the backend
+  const timeSlots: TimeSlotType[] = [
+    { id: '1', time: '06:00 - 07:00', available: true },
+    { id: '2', time: '07:00 - 08:00', available: true },
+    { id: '3', time: '08:00 - 09:00', available: false },
+    { id: '4', time: '09:00 - 10:00', available: true },
+    { id: '5', time: '10:00 - 11:00', available: true },
+    { id: '6', time: '11:00 - 12:00', available: false },
+    { id: '7', time: '12:00 - 13:00', available: true },
+    { id: '8', time: '13:00 - 14:00', available: true },
+    { id: '9', time: '14:00 - 15:00', available: true },
+    { id: '10', time: '15:00 - 16:00', available: false },
+    { id: '11', time: '16:00 - 17:00', available: true },
+    { id: '12', time: '17:00 - 18:00', available: true },
+  ];
 
   const handleBooking = () => {
     if (!isAuthenticated) {
@@ -26,7 +42,7 @@ export function TurfBooking({ turf }: TurfBookingProps) {
       return;
     }
 
-    if (!selectedDate || !selectedTime) {
+    if (!selectedDate || !selectedSlot) {
       toast.error("Please select both date and time");
       return;
     }
@@ -38,11 +54,19 @@ export function TurfBooking({ turf }: TurfBookingProps) {
       turfImage: turf.image,
       turfSport: turf.sport,
       date: selectedDate,
-      time: selectedTime,
+      time: selectedSlot.time,
       price: turf.price_per_hour,
     };
 
     navigate("/payment", { state: { bookingData } });
+  };
+
+  const handleSlotSelect = (slot: TimeSlotType | null) => {
+    if (slot && !slot.available) {
+      toast.error("This time slot is not available");
+      return;
+    }
+    setSelectedSlot(slot);
   };
 
   return (
@@ -65,12 +89,19 @@ export function TurfBooking({ turf }: TurfBookingProps) {
 
         <div>
           <h3 className="font-semibold mb-3">Select Time</h3>
-          <TimeSlotGrid
-            selectedTime={selectedTime}
-            onTimeSelect={setSelectedTime}
-            turfId={turf.id}
-            selectedDate={selectedDate}
-          />
+          <div className="grid grid-cols-2 gap-2">
+            {timeSlots.map((slot) => (
+              <Button
+                key={slot.id}
+                variant={selectedSlot?.id === slot.id ? "default" : "outline"}
+                className={`h-10 ${!slot.available ? "opacity-50 cursor-not-allowed" : ""}`}
+                disabled={!slot.available}
+                onClick={() => handleSlotSelect(slot)}
+              >
+                {slot.time}
+              </Button>
+            ))}
+          </div>
         </div>
 
         <div className="pt-4 border-t">
@@ -82,7 +113,7 @@ export function TurfBooking({ turf }: TurfBookingProps) {
             onClick={handleBooking} 
             className="w-full" 
             size="lg"
-            disabled={!selectedDate || !selectedTime}
+            disabled={!selectedDate || !selectedSlot}
           >
             Book Now
           </Button>
