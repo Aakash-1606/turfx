@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -69,7 +68,10 @@ export default function OwnerDashboard() {
     setTurfDialogOpen(false);
   };
 
+  // Determine if this is the first turf or existing turfs
   const hasExistingTurfs = turfs.length > 0;
+  const buttonText = hasExistingTurfs ? "Add New Turf" : "Add Your First Turf";
+  const dialogTitle = selectedTurf ? "Edit Turf" : (hasExistingTurfs ? "Add New Turf" : "Add Your First Turf");
 
   return (
     <Layout>
@@ -83,7 +85,7 @@ export default function OwnerDashboard() {
           </div>
           <Button onClick={handleAddTurf}>
             <Plus className="mr-2 h-4 w-4" />
-            {hasExistingTurfs ? "Add New Turf" : "Add Your First Turf"}
+            {buttonText}
           </Button>
         </div>
 

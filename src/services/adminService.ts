@@ -1,4 +1,3 @@
-
 import { supabase } from '@/lib/supabaseClient';
 import { Turf } from './turfService';
 
@@ -17,107 +16,134 @@ export interface AdminTurfData extends Omit<Turf, 'id' | 'created_at' | 'updated
   ownerPhone?: string;
 }
 
-// Create new turf owner account
+// Create new turf owner account with better error handling
 export const createTurfOwnerAccount = async (ownerData: CreateTurfOwnerData): Promise<string> => {
   console.log('Creating turf owner account:', ownerData.email);
   
-  // Create auth user
-  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-    email: ownerData.email,
-    password: ownerData.password,
-    email_confirm: true,
-    user_metadata: {
-      first_name: ownerData.firstName,
-      last_name: ownerData.lastName,
-      role: 'turf_owner'
+  try {
+    // First, check if we have admin privileges by checking current user role
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error('Authentication required');
     }
-  });
 
-  if (authError) {
-    console.error('Error creating auth user:', authError);
-    throw new Error(`Failed to create user account: ${authError.message}`);
-  }
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
 
-  if (!authData.user) {
-    throw new Error('Failed to create user account');
-  }
+    if (!profile || profile.role !== 'admin') {
+      throw new Error('Admin privileges required to create user accounts');
+    }
 
-  // Create profile
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .insert({
-      id: authData.user.id,
-      user_id: authData.user.id,
+    // For non-admin users, we'll create a regular signup flow
+    // This avoids the "User not allowed" error from admin.createUser
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email: ownerData.email,
-      first_name: ownerData.firstName,
-      last_name: ownerData.lastName,
-      phone: ownerData.phone || '',
-      role: 'turf_owner'
+      password: ownerData.password,
+      options: {
+        data: {
+          first_name: ownerData.firstName,
+          last_name: ownerData.lastName,
+          role: 'turf_owner'
+        }
+      }
     });
 
-  if (profileError) {
-    console.error('Error creating profile:', profileError);
-    throw new Error(`Failed to create user profile: ${profileError.message}`);
-  }
+    if (authError) {
+      console.error('Error creating auth user:', authError);
+      throw new Error(`Failed to create user account: ${authError.message}`);
+    }
 
-  console.log('Turf owner account created successfully:', authData.user.id);
-  return authData.user.id;
+    if (!authData.user) {
+      throw new Error('Failed to create user account');
+    }
+
+    // Create profile manually since the trigger might not handle the role correctly
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .upsert({
+        id: authData.user.id,
+        user_id: authData.user.id,
+        email: ownerData.email,
+        first_name: ownerData.firstName,
+        last_name: ownerData.lastName,
+        phone: ownerData.phone || '',
+        role: 'turf_owner'
+      });
+
+    if (profileError) {
+      console.error('Error creating profile:', profileError);
+      throw new Error(`Failed to create user profile: ${profileError.message}`);
+    }
+
+    console.log('Turf owner account created successfully:', authData.user.id);
+    return authData.user.id;
+  } catch (error: any) {
+    console.error('Error in createTurfOwnerAccount:', error);
+    throw error;
+  }
 };
 
-// Admin function to add turf with new owner
+// Admin function to add turf with new owner - simplified approach
 export const adminAddTurfWithOwner = async (turfData: AdminTurfData): Promise<Turf> => {
   console.log('Admin adding turf with owner:', turfData);
   
   let ownerId: string;
 
-  // If owner details are provided, create new owner account
-  if (turfData.ownerEmail && turfData.ownerFirstName && turfData.ownerLastName) {
-    ownerId = await createTurfOwnerAccount({
-      email: turfData.ownerEmail,
-      password: 'TempPassword123!', // Temporary password - owner should change it
-      firstName: turfData.ownerFirstName,
-      lastName: turfData.ownerLastName,
-      phone: turfData.ownerPhone
-    });
-  } else {
-    // Use current admin as owner (fallback)
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      throw new Error('Must be authenticated to add turf');
+  try {
+    // If owner details are provided, create new owner account
+    if (turfData.ownerEmail && turfData.ownerFirstName && turfData.ownerLastName) {
+      ownerId = await createTurfOwnerAccount({
+        email: turfData.ownerEmail,
+        password: 'TempPassword123!', // Temporary password - owner should change it
+        firstName: turfData.ownerFirstName,
+        lastName: turfData.ownerLastName,
+        phone: turfData.ownerPhone
+      });
+    } else {
+      // Use current admin as owner (fallback)
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Must be authenticated to add turf');
+      }
+      ownerId = user.id;
     }
-    ownerId = user.id;
+
+    // Create the turf with improved error handling
+    const { data, error } = await supabase
+      .from('turfs')
+      .insert([{
+        name: turfData.name,
+        location: turfData.location,
+        sport: turfData.sport,
+        price: turfData.price,
+        price_per_hour: turfData.price_per_hour,
+        capacity: turfData.capacity,
+        description: turfData.description,
+        image: turfData.image,
+        amenities: turfData.amenities,
+        rating: turfData.rating || 4.0,
+        owner_id: ownerId,
+        is_active: true
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating turf:', error);
+      throw new Error(`Failed to create turf: ${error.message}`);
+    }
+
+    console.log('Turf created successfully:', data);
+    return data;
+  } catch (error: any) {
+    console.error('Error in adminAddTurfWithOwner:', error);
+    throw error;
   }
-
-  // Create the turf
-  const { data, error } = await supabase
-    .from('turfs')
-    .insert([{
-      name: turfData.name,
-      location: turfData.location,
-      sport: turfData.sport,
-      price: turfData.price,
-      price_per_hour: turfData.price_per_hour,
-      capacity: turfData.capacity,
-      description: turfData.description,
-      image: turfData.image,
-      amenities: turfData.amenities,
-      rating: turfData.rating || 4.0,
-      owner_id: ownerId,
-      is_active: true
-    }])
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error creating turf:', error);
-    throw new Error(`Failed to create turf: ${error.message}`);
-  }
-
-  console.log('Turf created successfully:', data);
-  return data;
 };
 
-// Admin function to update any turf
 export const adminUpdateTurf = async (id: string, turfData: Partial<Omit<Turf, 'id' | 'created_at' | 'updated_at'>>): Promise<Turf> => {
   console.log('Admin updating turf:', id, turfData);
   
@@ -140,7 +166,6 @@ export const adminUpdateTurf = async (id: string, turfData: Partial<Omit<Turf, '
   return data;
 };
 
-// Get all turfs for admin
 export const adminGetAllTurfs = async (): Promise<Turf[]> => {
   const { data, error } = await supabase
     .from('turfs')
@@ -155,7 +180,6 @@ export const adminGetAllTurfs = async (): Promise<Turf[]> => {
   return data || [];
 };
 
-// Delete turf (admin only)
 export const adminDeleteTurf = async (id: string): Promise<void> => {
   console.log('Admin deleting turf:', id);
   

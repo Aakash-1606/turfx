@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { addTurf, updateTurf, Turf } from "@/services/turfService";
 import { toast } from "sonner";
 
@@ -25,18 +24,35 @@ export type TurfDetailsProps = {
 
 export function TurfDetailsDialog({ open, onOpenChange, isEdit = false, turfData = null, onSave }: TurfDetailsProps) {
   const [formData, setFormData] = useState({
-    name: turfData?.name || "",
-    location: turfData?.location || "",
-    price: turfData?.price || 500,
-    price_per_hour: turfData?.price_per_hour || 500,
-    capacity: turfData?.capacity || 22,
-    description: turfData?.description || "",
-    sport: turfData?.sport || "Football",
-    amenities: turfData?.amenities?.join(", ") || "Parking, Changing Rooms, Floodlights",
-    image: turfData?.image || "",
+    name: "",
+    location: "",
+    price: 500,
+    price_per_hour: 500,
+    capacity: 22,
+    description: "",
+    sport: "Football",
+    amenities: "Parking, Changing Rooms, Floodlights",
+    image: "",
   });
 
   const [saving, setSaving] = useState(false);
+
+  // Reset form data when dialog opens or turfData changes
+  useEffect(() => {
+    if (open) {
+      setFormData({
+        name: turfData?.name || "",
+        location: turfData?.location || "",
+        price: turfData?.price || 500,
+        price_per_hour: turfData?.price_per_hour || 500,
+        capacity: turfData?.capacity || 22,
+        description: turfData?.description || "",
+        sport: turfData?.sport || "Football",
+        amenities: turfData?.amenities?.join(", ") || "Parking, Changing Rooms, Floodlights",
+        image: turfData?.image || "",
+      });
+    }
+  }, [open, turfData]);
 
   const handleChange = (field: string, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -58,25 +74,27 @@ export function TurfDetailsDialog({ open, onOpenChange, isEdit = false, turfData
         price_per_hour: formData.price_per_hour,
         capacity: formData.capacity,
         description: formData.description,
-        image: formData.image,
+        image: formData.image || "/placeholder.svg", // Provide default image
         amenities: formData.amenities.split(",").map(a => a.trim()).filter(a => a),
         rating: turfData?.rating || 4.0,
       };
 
       if (isEdit && turfData) {
+        console.log('Updating turf with data:', turfPayload);
         await updateTurf(turfData.id, turfPayload);
         toast.success("Turf updated successfully!");
       } else {
-        // For addTurf, the owner_id will be automatically added in the service
+        console.log('Adding new turf with data:', turfPayload);
         await addTurf(turfPayload);
         toast.success("Turf added successfully!");
       }
 
       onSave();
       onOpenChange(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving turf:", error);
-      toast.error("Failed to save turf. Please try again.");
+      const errorMessage = error?.message || "Failed to save turf. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setSaving(false);
     }
@@ -86,7 +104,7 @@ export function TurfDetailsDialog({ open, onOpenChange, isEdit = false, turfData
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[525px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Update Turf Details" : "Add New Turf"}</DialogTitle>
+          <DialogTitle>{isEdit ? "Edit Turf Details" : "Add New Turf"}</DialogTitle>
           <DialogDescription>
             {isEdit
               ? "Make changes to the turf details here."
@@ -126,7 +144,7 @@ export function TurfDetailsDialog({ open, onOpenChange, isEdit = false, turfData
               id="price"
               type="number"
               value={formData.price}
-              onChange={(e) => handleChange("price", parseInt(e.target.value))}
+              onChange={(e) => handleChange("price", parseInt(e.target.value) || 0)}
               className="col-span-3"
               placeholder="500"
             />
@@ -139,7 +157,7 @@ export function TurfDetailsDialog({ open, onOpenChange, isEdit = false, turfData
               id="price_per_hour"
               type="number"
               value={formData.price_per_hour}
-              onChange={(e) => handleChange("price_per_hour", parseInt(e.target.value))}
+              onChange={(e) => handleChange("price_per_hour", parseInt(e.target.value) || 0)}
               className="col-span-3"
               placeholder="500"
             />
@@ -152,7 +170,7 @@ export function TurfDetailsDialog({ open, onOpenChange, isEdit = false, turfData
               id="capacity"
               type="number"
               value={formData.capacity}
-              onChange={(e) => handleChange("capacity", parseInt(e.target.value))}
+              onChange={(e) => handleChange("capacity", parseInt(e.target.value) || 0)}
               className="col-span-3"
               placeholder="22"
             />

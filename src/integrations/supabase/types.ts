@@ -70,6 +70,7 @@ export type Database = {
           role: string | null
           updated_at: string | null
           user_id: string | null
+          user_metadata: Json | null
         }
         Insert: {
           created_at?: string | null
@@ -81,6 +82,7 @@ export type Database = {
           role?: string | null
           updated_at?: string | null
           user_id?: string | null
+          user_metadata?: Json | null
         }
         Update: {
           created_at?: string | null
@@ -92,6 +94,7 @@ export type Database = {
           role?: string | null
           updated_at?: string | null
           user_id?: string | null
+          user_metadata?: Json | null
         }
         Relationships: []
       }
@@ -140,11 +143,16 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
+          image: string | null
           images: string[] | null
           is_active: boolean | null
           location: string
           name: string
           owner_id: string | null
+          ownerEmail: string | null
+          ownerFirstName: string | null
+          ownerLastName: string | null
+          ownerPhone: string | null
           price: number
           price_per_hour: number | null
           rating: number | null
@@ -157,11 +165,16 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          image?: string | null
           images?: string[] | null
           is_active?: boolean | null
           location: string
           name: string
           owner_id?: string | null
+          ownerEmail?: string | null
+          ownerFirstName?: string | null
+          ownerLastName?: string | null
+          ownerPhone?: string | null
           price: number
           price_per_hour?: number | null
           rating?: number | null
@@ -174,11 +187,16 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          image?: string | null
           images?: string[] | null
           is_active?: boolean | null
           location?: string
           name?: string
           owner_id?: string | null
+          ownerEmail?: string | null
+          ownerFirstName?: string | null
+          ownerLastName?: string | null
+          ownerPhone?: string | null
           price?: number
           price_per_hour?: number | null
           rating?: number | null
