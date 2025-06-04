@@ -13,6 +13,7 @@ import TurfDetail from "./pages/TurfDetail";
 import Bookings from "./pages/Bookings";
 import Login from "./pages/Login";
 import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
 import Signup from "./pages/Signup";
 import HowItWorks from "./pages/HowItWorks";
 import About from "./pages/About";
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/turf/:id" element={<TurfDetail />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/about" element={<About />} />

@@ -1,11 +1,9 @@
 
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { BarChart, Calendar, Clock, Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { TurfDetailsDialog } from "@/components/TurfDetailsDialog";
 import { getTurfsByOwner, deleteTurf, Turf } from "@/services/turfService";
@@ -24,7 +22,9 @@ export default function OwnerDashboard() {
     
     setLoading(true);
     try {
+      console.log('Fetching turfs for owner:', user.id);
       const data = await getTurfsByOwner(user.id);
+      console.log('Owner turfs fetched:', data);
       setTurfs(data);
     } catch (error) {
       console.error("Error fetching turfs:", error);
@@ -44,6 +44,7 @@ export default function OwnerDashboard() {
   };
 
   const handleEditTurf = (turf: Turf) => {
+    console.log('Editing turf:', turf);
     setSelectedTurf(turf);
     setTurfDialogOpen(true);
   };
@@ -52,6 +53,7 @@ export default function OwnerDashboard() {
     if (!confirm("Are you sure you want to delete this turf?")) return;
     
     try {
+      console.log('Deleting turf:', turfId);
       await deleteTurf(turfId);
       toast.success("Turf deleted successfully");
       fetchTurfs(); // Refresh the list
@@ -62,9 +64,12 @@ export default function OwnerDashboard() {
   };
 
   const handleTurfSaved = () => {
+    console.log('Turf saved, refreshing list');
     fetchTurfs(); // Refresh the list after adding/updating
     setTurfDialogOpen(false);
   };
+
+  const hasExistingTurfs = turfs.length > 0;
 
   return (
     <Layout>
@@ -78,7 +83,7 @@ export default function OwnerDashboard() {
           </div>
           <Button onClick={handleAddTurf}>
             <Plus className="mr-2 h-4 w-4" />
-            Add New Turf
+            {hasExistingTurfs ? "Add New Turf" : "Add Your First Turf"}
           </Button>
         </div>
 
@@ -110,7 +115,7 @@ export default function OwnerDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Bookings This Month</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">📅</span>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">42</div>
@@ -145,7 +150,7 @@ export default function OwnerDashboard() {
               <CardContent>
                 <h3 className="text-xl mb-2">No turfs found</h3>
                 <p className="text-muted-foreground mb-4">
-                  Start by adding your first turf listing.
+                  Start by adding your first turf listing to begin managing your facility.
                 </p>
                 <Button onClick={handleAddTurf}>
                   <Plus className="mr-2 h-4 w-4" />
@@ -181,7 +186,7 @@ export default function OwnerDashboard() {
                         className="flex-1"
                       >
                         <Pencil className="mr-2 h-3 w-3" />
-                        Edit
+                        Edit Turf
                       </Button>
                       <Button
                         variant="destructive"

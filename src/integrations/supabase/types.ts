@@ -136,45 +136,51 @@ export type Database = {
       turfs: {
         Row: {
           amenities: string[] | null
+          capacity: number | null
           created_at: string | null
           description: string | null
           id: string
-          image: string | null
+          images: string[] | null
           is_active: boolean | null
           location: string
           name: string
           owner_id: string | null
           price: number
+          price_per_hour: number | null
           rating: number | null
           sport: string
           updated_at: string | null
         }
         Insert: {
           amenities?: string[] | null
+          capacity?: number | null
           created_at?: string | null
           description?: string | null
           id?: string
-          image?: string | null
+          images?: string[] | null
           is_active?: boolean | null
           location: string
           name: string
           owner_id?: string | null
           price: number
+          price_per_hour?: number | null
           rating?: number | null
           sport: string
           updated_at?: string | null
         }
         Update: {
           amenities?: string[] | null
+          capacity?: number | null
           created_at?: string | null
           description?: string | null
           id?: string
-          image?: string | null
+          images?: string[] | null
           is_active?: boolean | null
           location?: string
           name?: string
           owner_id?: string | null
           price?: number
+          price_per_hour?: number | null
           rating?: number | null
           sport?: string
           updated_at?: string | null
@@ -186,7 +192,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

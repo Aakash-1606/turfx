@@ -1,129 +1,231 @@
+
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { User, Calendar, MapPin, CreditCard, TrendingUp, CheckCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Pencil, Trash2, User, Calendar, MapPin, CreditCard, TrendingUp } from "lucide-react";
+import { AdminTurfDialog } from "@/components/AdminTurfDialog";
+import { adminGetAllTurfs, adminDeleteTurf } from "@/services/adminService";
+import { Turf } from "@/services/turfService";
 import { toast } from "sonner";
 
-const data = [
-  { name: "Mon", bookings: 4 },
-  { name: "Tue", bookings: 3 },
-  { name: "Wed", bookings: 5 },
-  { name: "Thu", bookings: 7 },
-  { name: "Fri", bookings: 10 },
-  { name: "Sat", bookings: 12 },
-  { name: "Sun", bookings: 8 },
-];
-
 export default function AdminDashboard() {
-  const [animateChart, setAnimateChart] = useState(false);
-  
+  const [turfDialogOpen, setTurfDialogOpen] = useState(false);
+  const [selectedTurf, setSelectedTurf] = useState<Turf | null>(null);
+  const [turfs, setTurfs] = useState<Turf[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchAllTurfs = async () => {
+    setLoading(true);
+    try {
+      console.log('Admin fetching all turfs');
+      const data = await adminGetAllTurfs();
+      console.log('All turfs fetched:', data);
+      setTurfs(data);
+    } catch (error) {
+      console.error("Error fetching turfs:", error);
+      toast.error("Failed to fetch turfs");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    // Animate dashboard elements on load
-    const animateElements = () => {
-      setAnimateChart(true);
-      
-      // Apply reveal animation to cards
-      const cards = document.querySelectorAll('.dashboard-card');
-      cards.forEach((card, index) => {
-        setTimeout(() => {
-          if (card instanceof HTMLElement) {
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-          }
-        }, 100 * index);
-      });
-    };
-    
-    // Add parallax effect to the background decoration
-    const parallaxBg = (e) => {
-      const decorElements = document.querySelectorAll('.bg-decor');
-      const x = e.clientX / window.innerWidth;
-      const y = e.clientY / window.innerHeight;
-      
-      decorElements.forEach((elem) => {
-        if (elem instanceof HTMLElement) {
-          elem.style.transform = `translate(${x * 20}px, ${y * 20}px)`;
-        }
-      });
-    };
-    
-    // Initialize animations
-    setTimeout(animateElements, 300);
-    
-    // Add mousemove event for parallax
-    window.addEventListener('mousemove', parallaxBg);
-    
-    return () => {
-      window.removeEventListener('mousemove', parallaxBg);
-    };
+    fetchAllTurfs();
   }, []);
+
+  const handleAddTurf = () => {
+    setSelectedTurf(null);
+    setTurfDialogOpen(true);
+  };
+
+  const handleEditTurf = (turf: Turf) => {
+    console.log('Admin editing turf:', turf);
+    setSelectedTurf(turf);
+    setTurfDialogOpen(true);
+  };
+
+  const handleDeleteTurf = async (turfId: string) => {
+    if (!confirm("Are you sure you want to delete this turf? This action cannot be undone.")) return;
+    
+    try {
+      console.log('Admin deleting turf:', turfId);
+      await adminDeleteTurf(turfId);
+      toast.success("Turf deleted successfully");
+      fetchAllTurfs(); // Refresh the list
+    } catch (error) {
+      console.error("Error deleting turf:", error);
+      toast.error("Failed to delete turf");
+    }
+  };
+
+  const handleTurfSaved = () => {
+    console.log('Turf saved, refreshing list');
+    fetchAllTurfs(); // Refresh the list after adding/updating
+    setTurfDialogOpen(false);
+  };
 
   return (
     <Layout>
-      <div className="container relative">
-        {/* Background Decoration */}
-        <div className="absolute inset-0 -z-10">
-          <div className="bg-decor absolute top-1/4 left-1/4 w-48 h-48 rounded-full bg-primary/10 blur-3xl"></div>
-          <div className="bg-decor absolute bottom-1/4 right-1/4 w-48 h-48 rounded-full bg-secondary/10 blur-3xl"></div>
+      <div className="container py-8">
+        <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
+          <div>
+            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <p className="mt-1 text-muted-foreground">
+              Manage all turfs, users, and platform operations
+            </p>
+          </div>
+          <Button onClick={handleAddTurf}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add New Turf & Owner
+          </Button>
         </div>
-        
-        <div className="py-8">
-          <h1 className="text-3xl font-bold mb-4">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Overview of your TurfX business</p>
+
+        <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Turfs</CardTitle>
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{turfs.length}</div>
+              <p className="text-xs text-muted-foreground">
+                Active facilities
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Revenue This Month</CardTitle>
+              <CreditCard className="h-4 w-4 text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">₹12,500</div>
+              <p className="text-xs text-muted-foreground">
+                +15% from last month
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Bookings This Month</CardTitle>
+              <Calendar className="h-4 w-4 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">128</div>
+              <p className="text-xs text-muted-foreground">
+                +10% from last month
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Average Rating</CardTitle>
+              <TrendingUp className="h-4 w-4 text-yellow-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">4.8</div>
+              <p className="text-xs text-muted-foreground">
+                Across all turfs
+              </p>
+            </CardContent>
+          </Card>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="dashboard-card" style={{ opacity: 0, transform: 'translateY(20px)' }}>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-2xl font-bold">24</div>
-                <div className="text-muted-foreground">Total Turfs</div>
-              </div>
-              <User className="h-6 w-6 text-primary" />
-            </div>
-          </Card>
-          
-          <Card className="dashboard-card" style={{ opacity: 0, transform: 'translateY(20px)' }}>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-2xl font-bold">₹12,500</div>
-                <div className="text-muted-foreground">Revenue This Month</div>
-              </div>
-              <CreditCard className="h-6 w-6 text-green-500" />
-            </div>
-          </Card>
-          
-          <Card className="dashboard-card" style={{ opacity: 0, transform: 'translateY(20px)' }}>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-2xl font-bold">128</div>
-                <div className="text-muted-foreground">Bookings This Month</div>
-              </div>
-              <Calendar className="h-6 w-6 text-blue-500" />
-            </div>
-          </Card>
-          
-          <Card className="dashboard-card" style={{ opacity: 0, transform: 'translateY(20px)' }}>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-2xl font-bold">4.8</div>
-                <div className="text-muted-foreground">Average Rating</div>
-              </div>
-              <TrendingUp className="h-6 w-6 text-yellow-500" />
-            </div>
-          </Card>
-        </div>
-        
-        <Tabs defaultValue="bookings" className="w-full">
+
+        <Tabs defaultValue="turfs" className="mt-8">
           <TabsList>
-            <TabsTrigger value="bookings">Bookings</TabsTrigger>
-            <TabsTrigger value="revenue">Revenue</TabsTrigger>
-            <TabsTrigger value="locations">Locations</TabsTrigger>
+            <TabsTrigger value="turfs">All Turfs</TabsTrigger>
+            <TabsTrigger value="bookings">Recent Bookings</TabsTrigger>
+            <TabsTrigger value="users">Users</TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="turfs" className="mt-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold">All Turf Facilities</h3>
+              <p className="text-sm text-muted-foreground">
+                Manage all turfs across the platform
+              </p>
+            </div>
+            
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3].map((i) => (
+                  <Card key={i} className="animate-pulse">
+                    <CardHeader>
+                      <div className="h-6 bg-muted rounded w-3/4"></div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div className="h-4 bg-muted rounded w-full"></div>
+                        <div className="h-4 bg-muted rounded w-2/3"></div>
+                        <div className="h-10 bg-muted rounded w-full mt-4"></div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : turfs.length === 0 ? (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <h3 className="text-xl mb-2">No turfs found</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Start by adding the first turf facility to the platform.
+                  </p>
+                  <Button onClick={handleAddTurf}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add First Turf
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {turfs.map((turf) => (
+                  <Card key={turf.id}>
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <CardTitle className="text-lg">{turf.name}</CardTitle>
+                        <Badge variant="secondary">{turf.sport}</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        <strong>Location:</strong> {turf.location}
+                      </p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        <strong>Price:</strong> ₹{turf.price}/hr
+                      </p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        <strong>Capacity:</strong> {turf.capacity} players
+                      </p>
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                        {turf.description}
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditTurf(turf)}
+                          className="flex-1"
+                        >
+                          <Pencil className="mr-2 h-3 w-3" />
+                          Edit
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDeleteTurf(turf.id)}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
           
           <TabsContent value="bookings" className="mt-6">
             <h3 className="text-xl font-semibold mb-4">Recent Bookings</h3>
@@ -150,67 +252,12 @@ export default function AdminDashboard() {
                 </thead>
                 <tbody>
                   <tr>
+                    <td className="px-5 py-5 border-b text-sm">City Ground</td>
+                    <td className="px-5 py-5 border-b text-sm">10/05/2024</td>
+                    <td className="px-5 py-5 border-b text-sm">16:00</td>
+                    <td className="px-5 py-5 border-b text-sm">John Doe</td>
                     <td className="px-5 py-5 border-b text-sm">
-                      <div className="flex items-center">
-                        <div className="ml-3">
-                          <p className="text-foreground whitespace-no-wrap">
-                            City Ground
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-5 py-5 border-b text-sm">
-                      <p className="text-foreground whitespace-no-wrap">
-                        10/05/2024
-                      </p>
-                    </td>
-                    <td className="px-5 py-5 border-b text-sm">
-                      <p className="text-foreground whitespace-no-wrap">
-                        16:00
-                      </p>
-                    </td>
-                    <td className="px-5 py-5 border-b text-sm">
-                      <p className="text-foreground whitespace-no-wrap">
-                        John Doe
-                      </p>
-                    </td>
-                    <td className="px-5 py-5 border-b text-sm">
-                      <span className="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
-                        <span aria-hidden className="absolute inset-0 bg-green-200 opacity-50 rounded-full"></span>
-                        <span className="relative text-xs">Active</span>
-                      </span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="px-5 py-5 border-b text-sm">
-                      <div className="flex items-center">
-                        <div className="ml-3">
-                          <p className="text-foreground whitespace-no-wrap">
-                            Sports Arena
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-5 py-5 border-b text-sm">
-                      <p className="text-foreground whitespace-no-wrap">
-                        12/05/2024
-                      </p>
-                    </td>
-                    <td className="px-5 py-5 border-b text-sm">
-                      <p className="text-foreground whitespace-no-wrap">
-                        18:00
-                      </p>
-                    </td>
-                    <td className="px-5 py-5 border-b text-sm">
-                      <p className="text-foreground whitespace-no-wrap">
-                        Jane Smith
-                      </p>
-                    </td>
-                    <td className="px-5 py-5 border-b text-sm">
-                      <span className="relative inline-block px-3 py-1 font-semibold text-red-900 leading-tight">
-                        <span aria-hidden className="absolute inset-0 bg-red-200 opacity-50 rounded-full"></span>
-                        <span className="relative text-xs">Cancelled</span>
-                      </span>
+                      <Badge variant="default">Active</Badge>
                     </td>
                   </tr>
                 </tbody>
@@ -218,57 +265,20 @@ export default function AdminDashboard() {
             </div>
           </TabsContent>
           
-          <TabsContent value="revenue" className="mt-6">
-            <h3 className="text-xl font-semibold mb-4">Monthly Revenue</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="bookings" fill="#8884d8" className={animateChart ? 'fade-in' : ''} />
-              </BarChart>
-            </ResponsiveContainer>
-            <div className="text-right mt-2 text-muted-foreground">
-              <TrendingUp className="inline-block h-4 w-4 mr-1 align-middle" />
-              <span>+15% from last month</span>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="locations" className="mt-6">
-            <h3 className="text-xl font-semibold mb-4">Top Locations</h3>
-            <ul className="list-none pl-0">
-              <li className="py-2 border-b">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-foreground font-medium">Pondicherry</p>
-                    <p className="text-sm text-muted-foreground">12 Turfs</p>
-                  </div>
-                  <MapPin className="h-5 w-5 text-muted-foreground" />
-                </div>
-              </li>
-              <li className="py-2 border-b">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-foreground font-medium">Chennai</p>
-                    <p className="text-sm text-muted-foreground">8 Turfs</p>
-                  </div>
-                  <MapPin className="h-5 w-5 text-muted-foreground" />
-                </div>
-              </li>
-              <li className="py-2">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-foreground font-medium">Bangalore</p>
-                    <p className="text-sm text-muted-foreground">5 Turfs</p>
-                  </div>
-                  <MapPin className="h-5 w-5 text-muted-foreground" />
-                </div>
-              </li>
-            </ul>
+          <TabsContent value="users" className="mt-6">
+            <h3 className="text-xl font-semibold mb-4">Platform Users</h3>
+            <p className="text-muted-foreground">User management features coming soon...</p>
           </TabsContent>
         </Tabs>
       </div>
+
+      <AdminTurfDialog
+        open={turfDialogOpen}
+        onOpenChange={setTurfDialogOpen}
+        isEdit={!!selectedTurf}
+        turfData={selectedTurf}
+        onSave={handleTurfSaved}
+      />
     </Layout>
   );
 }
