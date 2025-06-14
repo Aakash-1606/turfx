@@ -1,73 +1,76 @@
-# Welcome to our Project
+Welcome to Our Project – TurfX
+Project Info
+URL: https://turfx.app (replace with your actual deployed link if available)
 
-## Project info
+How can I edit this code?
+There are several ways to edit your TurfX application:
 
-**URL**: https://lovable.dev/projects/5c07c29d-3408-4261-980a-d865db925d32
+💻 Use Your Preferred IDE
+You can clone the project and work locally using any IDE like VS Code.
 
-## How can I edit this code?
+Make sure you have Node.js and npm installed – Install with NVM
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/5c07c29d-3408-4261-980a-d865db925d32) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+sh
+Copy
+Edit
+# Step 1: Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
+# Step 2: Navigate to the project folder
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Step 3: Install the dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Start the development server
 npm run dev
-```
+✏️ Edit Directly on GitHub
+Go to your repository on GitHub.
 
-**Edit a file directly in GitHub**
+Navigate to the file you want to edit.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Click the ✏️ pencil icon in the top right.
 
-**Use GitHub Codespaces**
+Make your changes and commit them.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+🧠 Use GitHub Codespaces (Optional)
+Go to your GitHub repository.
 
-## What technologies are used for this project?
+Click the green Code button.
 
-This project is built with:
+Open the Codespaces tab.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Click New codespace to start coding directly in the browser.
 
-## How can I deploy this project?
+🛠 Technologies Used
+The TurfX project is built using:
 
-Simply open [Lovable](https://lovable.dev/projects/5c07c29d-3408-4261-980a-d865db925d32) and click on Share -> Publish.
+Vite – Fast development and build tool
 
-## Can I connect a custom domain to my Lovable project?
+TypeScript – Typed JavaScript
 
-Yes, you can!
+React – Component-based UI framework
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+shadcn/ui – Pre-built styled UI components
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Tailwind CSS – Utility-first CSS framework
+
+🚀 How to Deploy This Project
+You can deploy this project on platforms like:
+
+Vercel (recommended)
+
+Netlify
+
+Render
+
+Firebase Hosting
+
+Just connect your GitHub repo and follow the provider’s setup steps.
+
+🌐 Connect a Custom Domain
+To connect a custom domain:
+
+Go to your deployment provider’s dashboard.
+
+Add your domain under domain settings.
