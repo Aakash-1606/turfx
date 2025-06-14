@@ -1,6 +1,6 @@
 Welcome to Our Project – TurfX
 Project Info
-URL: https://turfx.fun (replace with your actual deployed link if available)
+URL: https://turfx.fun
 
 How can I edit this code?
 There are several ways to edit your TurfX application:
