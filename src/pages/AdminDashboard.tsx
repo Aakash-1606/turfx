@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, User, Calendar, MapPin, CreditCard, TrendingUp } from "lucide-react";
 import { AdminTurfDialog } from "@/components/AdminTurfDialog";
 import { adminGetAllTurfs, adminDeleteTurf } from "@/services/adminService";
@@ -77,10 +76,7 @@ export default function AdminDashboard() {
               Manage all turfs, users, and platform operations
             </p>
           </div>
-          <Button onClick={handleAddTurf}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add New Turf & Owner
-          </Button>
+          
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -173,10 +169,7 @@ export default function AdminDashboard() {
                   <p className="text-muted-foreground mb-4">
                     Start by adding the first turf facility to the platform.
                   </p>
-                  <Button onClick={handleAddTurf}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add First Turf
-                  </Button>
+                  
                 </CardContent>
               </Card>
             ) : (
@@ -202,24 +195,7 @@ export default function AdminDashboard() {
                       <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
                         {turf.description}
                       </p>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditTurf(turf)}
-                          className="flex-1"
-                        >
-                          <Pencil className="mr-2 h-3 w-3" />
-                          Edit
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDeleteTurf(turf.id)}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
+                      
                     </CardContent>
                   </Card>
                 ))}
@@ -272,13 +248,7 @@ export default function AdminDashboard() {
         </Tabs>
       </div>
 
-      <AdminTurfDialog
-        open={turfDialogOpen}
-        onOpenChange={setTurfDialogOpen}
-        isEdit={!!selectedTurf}
-        turfData={selectedTurf}
-        onSave={handleTurfSaved}
-      />
+      
     </Layout>
   );
 }
