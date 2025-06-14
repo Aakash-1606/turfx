@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { handleError, validateInput } from "@/lib/errorHandler";
 import { signupSchema, SignupFormData } from "@/lib/validationSchemas";
 import { toast } from "sonner";
+import { TermsDialog } from "@/components/TermsDialog";
 
 export default function Signup() {
   const [formData, setFormData] = useState<SignupFormData>({
@@ -23,6 +24,7 @@ export default function Signup() {
 
   const { signUp } = useAuth();
   const navigate = useNavigate();
+  const [termsOpen, setTermsOpen] = useState(false);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,9 +173,14 @@ export default function Signup() {
               />
               <label htmlFor="terms" className="text-sm font-medium leading-none">
                 I agree to the{" "}
-                <Link to="/terms" className="text-primary underline-offset-4 hover:underline">
+                <button
+                  type="button"
+                  onClick={() => setTermsOpen(true)}
+                  className="text-primary underline-offset-4 hover:underline bg-transparent border-none p-0 outline-none"
+                  tabIndex={0}
+                >
                   terms of service
-                </Link>{" "}
+                </button>{" "}
                 and{" "}
                 <Link to="/privacy" className="text-primary underline-offset-4 hover:underline">
                   privacy policy
@@ -196,6 +203,7 @@ export default function Signup() {
           </div>
         </div>
       </div>
+      <TermsDialog open={termsOpen} onOpenChange={setTermsOpen} />
     </Layout>
   );
 }
