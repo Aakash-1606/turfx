@@ -1,30 +1,37 @@
+
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, User, Calendar, MapPin, CreditCard, TrendingUp } from "lucide-react";
-import { AdminTurfDialog } from "@/components/AdminTurfDialog";
-import { adminGetAllTurfs, adminDeleteTurf } from "@/services/adminService";
+import { MapPin, CreditCard, Calendar, TrendingUp } from "lucide-react";
+import { adminGetAllTurfs } from "@/services/adminService";
 import { Turf } from "@/services/turfService";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabaseClient"; // For fetching users
+
+type Profile = {
+  id: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  role?: string;
+  created_at?: string;
+};
 
 export default function AdminDashboard() {
-  const [turfDialogOpen, setTurfDialogOpen] = useState(false);
-  const [selectedTurf, setSelectedTurf] = useState<Turf | null>(null);
   const [turfs, setTurfs] = useState<Turf[]>([]);
   const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<Profile[]>([]);
+  const [usersLoading, setUsersLoading] = useState(true);
 
+  // --- TURFS fetching ---
   const fetchAllTurfs = async () => {
     setLoading(true);
     try {
-      console.log('Admin fetching all turfs');
       const data = await adminGetAllTurfs();
-      console.log('All turfs fetched:', data);
       setTurfs(data);
     } catch (error) {
-      console.error("Error fetching turfs:", error);
       toast.error("Failed to fetch turfs");
     } finally {
       setLoading(false);
@@ -35,36 +42,29 @@ export default function AdminDashboard() {
     fetchAllTurfs();
   }, []);
 
-  const handleAddTurf = () => {
-    setSelectedTurf(null);
-    setTurfDialogOpen(true);
-  };
-
-  const handleEditTurf = (turf: Turf) => {
-    console.log('Admin editing turf:', turf);
-    setSelectedTurf(turf);
-    setTurfDialogOpen(true);
-  };
-
-  const handleDeleteTurf = async (turfId: string) => {
-    if (!confirm("Are you sure you want to delete this turf? This action cannot be undone.")) return;
-    
+  // --- USERS fetching ---
+  const fetchAllUsers = async () => {
+    setUsersLoading(true);
     try {
-      console.log('Admin deleting turf:', turfId);
-      await adminDeleteTurf(turfId);
-      toast.success("Turf deleted successfully");
-      fetchAllTurfs(); // Refresh the list
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, email, first_name, last_name, role, created_at")
+        .order("created_at", { ascending: false });
+      if (error) {
+        throw error;
+      }
+      setUsers(data || []);
     } catch (error) {
-      console.error("Error deleting turf:", error);
-      toast.error("Failed to delete turf");
+      toast.error("Failed to fetch users");
+      setUsers([]);
+    } finally {
+      setUsersLoading(false);
     }
   };
 
-  const handleTurfSaved = () => {
-    console.log('Turf saved, refreshing list');
-    fetchAllTurfs(); // Refresh the list after adding/updating
-    setTurfDialogOpen(false);
-  };
+  useEffect(() => {
+    fetchAllUsers();
+  }, []);
 
   return (
     <Layout>
@@ -76,7 +76,6 @@ export default function AdminDashboard() {
               Manage all turfs, users, and platform operations
             </p>
           </div>
-          
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -144,7 +143,6 @@ export default function AdminDashboard() {
                 Manage all turfs across the platform
               </p>
             </div>
-            
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1, 2, 3].map((i) => (
@@ -167,9 +165,8 @@ export default function AdminDashboard() {
                 <CardContent>
                   <h3 className="text-xl mb-2">No turfs found</h3>
                   <p className="text-muted-foreground mb-4">
-                    Start by adding the first turf facility to the platform.
+                    Start by adding the first turf facility to the platform—in the database.
                   </p>
-                  
                 </CardContent>
               </Card>
             ) : (
@@ -195,7 +192,6 @@ export default function AdminDashboard() {
                       <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
                         {turf.description}
                       </p>
-                      
                     </CardContent>
                   </Card>
                 ))}
@@ -242,13 +238,44 @@ export default function AdminDashboard() {
           </TabsContent>
           
           <TabsContent value="users" className="mt-6">
-            <h3 className="text-xl font-semibold mb-4">Platform Users</h3>
-            <p className="text-muted-foreground">User management features coming soon...</p>
+            <h3 className="text-xl font-semibold mb-4">All Users</h3>
+            {usersLoading ? (
+              <div className="text-muted-foreground">Loading users...</div>
+            ) : users.length === 0 ? (
+              <div className="text-muted-foreground">No users found.</div>
+            ) : (
+              <div className="overflow-x-auto rounded-lg border">
+                <table className="min-w-full">
+                  <thead>
+                    <tr>
+                      <th className="px-4 py-2 border-b bg-muted text-left">Name</th>
+                      <th className="px-4 py-2 border-b bg-muted text-left">Email</th>
+                      <th className="px-4 py-2 border-b bg-muted text-left">Role</th>
+                      <th className="px-4 py-2 border-b bg-muted text-left">Registered At</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((u) => (
+                      <tr key={u.id}>
+                        <td className="px-4 py-2 border-b">
+                          {(u.first_name || "") + " " + (u.last_name || "")}
+                        </td>
+                        <td className="px-4 py-2 border-b">{u.email || ""}</td>
+                        <td className="px-4 py-2 border-b">{u.role || ""}</td>
+                        <td className="px-4 py-2 border-b">
+                          {u.created_at
+                            ? new Date(u.created_at).toLocaleDateString()
+                            : ""}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
-
-      
     </Layout>
   );
 }
