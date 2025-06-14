@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/layout/Layout";
 import { HeroSection } from "@/components/HeroSection";
 import { FeaturedTurfs } from "@/components/FeaturedTurfs";
@@ -47,7 +46,7 @@ export default function Index() {
           </div>
           
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="text-center p-6 rounded-lg border bg-card hover:shadow-md transition-shadow">
+            <div className="text-center p-6 rounded-lg hover:shadow-md transition-shadow">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <MapPin className="h-8 w-8 text-primary" />
               </div>
@@ -57,7 +56,7 @@ export default function Index() {
               </p>
             </div>
             
-            <div className="text-center p-6 rounded-lg border bg-card hover:shadow-md transition-shadow">
+            <div className="text-center p-6 rounded-lg hover:shadow-md transition-shadow">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CalendarIcon className="h-8 w-8 text-primary" />
               </div>
@@ -67,7 +66,7 @@ export default function Index() {
               </p>
             </div>
             
-            <div className="text-center p-6 rounded-lg border bg-card hover:shadow-md transition-shadow">
+            <div className="text-center p-6 rounded-lg hover:shadow-md transition-shadow">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Clock className="h-8 w-8 text-primary" />
               </div>
