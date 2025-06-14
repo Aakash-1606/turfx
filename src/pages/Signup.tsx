@@ -70,6 +70,12 @@ export default function Signup() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Toggle handlers for dialog linking
+  const handleTermsPrivacyLink = () => {
+    setTermsOpen(false);
+    setPrivacyOpen(true);
+  };
+
   return (
     <Layout>
       <div className="container flex items-center justify-center py-16">
@@ -211,8 +217,9 @@ export default function Signup() {
           </div>
         </div>
       </div>
-      <TermsDialog open={termsOpen} onOpenChange={setTermsOpen} />
+      <TermsDialog open={termsOpen} onOpenChange={setTermsOpen} onPrivacyLinkClick={handleTermsPrivacyLink} />
       <PrivacyDialog open={privacyOpen} onOpenChange={setPrivacyOpen} />
     </Layout>
   );
 }
+

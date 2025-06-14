@@ -5,7 +5,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -14,9 +13,17 @@ import React from "react";
 interface TermsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onPrivacyLinkClick?: () => void;
 }
 
-export function TermsDialog({ open, onOpenChange }: TermsDialogProps) {
+export function TermsDialog({ open, onOpenChange, onPrivacyLinkClick }: TermsDialogProps) {
+  const handlePrivacyClick = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
+    e.preventDefault();
+    if (onPrivacyLinkClick) {
+      onPrivacyLinkClick();
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto w-full max-w-2xl">
@@ -77,7 +84,16 @@ export function TermsDialog({ open, onOpenChange }: TermsDialogProps) {
           </ul>
           <h2 className="font-bold text-lg">9. Privacy</h2>
           <p>
-            We respect your privacy. Please refer to our <a href="/privacy" className="text-primary underline hover:underline">Privacy Policy</a> for details on how your data is collected and used.
+            We respect your privacy. Please refer to our{" "}
+            <button
+              type="button"
+              onClick={handlePrivacyClick}
+              className="text-primary underline hover:underline bg-transparent border-none p-0 outline-none"
+              tabIndex={0}
+            >
+              Privacy Policy
+            </button>{" "}
+            for details on how your data is collected and used.
           </p>
           <h2 className="font-bold text-lg">10. Modifications</h2>
           <p>
@@ -97,3 +113,4 @@ export function TermsDialog({ open, onOpenChange }: TermsDialogProps) {
     </Dialog>
   );
 }
+
