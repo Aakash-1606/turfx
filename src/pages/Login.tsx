@@ -101,7 +101,7 @@ export default function Login() {
                 </label>
                 <Input
                   id="email"
-                  placeholder="m@example.com"
+                  placeholder=""
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
