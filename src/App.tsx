@@ -1,4 +1,3 @@
-
 // App.tsx
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -22,6 +21,7 @@ import OwnerDashboard from "./pages/OwnerDashboard";
 import Payment from "./pages/Payment";
 import NotFound from "./pages/NotFound";
 import CustomerHome from "./pages/CustomerHome";
+import Privacy from "./pages/Privacy";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { RoleRedirect } from "@/components/RoleRedirect";
@@ -51,6 +51,7 @@ const App = () => (
             <Route path="/signup" element={<Signup />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/about" element={<About />} />
+            <Route path="/privacy" element={<Privacy />} />
 
             {/* 🔒 Protected Routes */}
             <Route
