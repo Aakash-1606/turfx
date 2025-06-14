@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { handleError, validateInput } from "@/lib/errorHandler";
 import { signupSchema, SignupFormData } from "@/lib/validationSchemas";
 import { toast } from "sonner";
 import { TermsDialog } from "@/components/TermsDialog";
+import { PrivacyDialog } from "@/components/PrivacyDialog";
 
 export default function Signup() {
   const [formData, setFormData] = useState<SignupFormData>({
@@ -25,6 +27,7 @@ export default function Signup() {
   const { signUp } = useAuth();
   const navigate = useNavigate();
   const [termsOpen, setTermsOpen] = useState(false);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,9 +185,14 @@ export default function Signup() {
                   terms of service
                 </button>{" "}
                 and{" "}
-                <Link to="/privacy" className="text-primary underline-offset-4 hover:underline">
+                <button
+                  type="button"
+                  onClick={() => setPrivacyOpen(true)}
+                  className="text-primary underline-offset-4 hover:underline bg-transparent border-none p-0 outline-none"
+                  tabIndex={0}
+                >
                   privacy policy
-                </Link>
+                </button>
               </label>
             </div>
             <Button 
@@ -204,6 +212,7 @@ export default function Signup() {
         </div>
       </div>
       <TermsDialog open={termsOpen} onOpenChange={setTermsOpen} />
+      <PrivacyDialog open={privacyOpen} onOpenChange={setPrivacyOpen} />
     </Layout>
   );
 }
