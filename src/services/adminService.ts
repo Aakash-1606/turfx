@@ -65,7 +65,7 @@ export const createTurfOwnerAccount = async (ownerData: CreateTurfOwnerData): Pr
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     // Verify profile was created
-    const { data: profile: userProfile, error: profileCheckError } = await supabase
+    const { data: userProfile, error: profileCheckError } = await supabase
       .from('profiles')
       .select('id, role')
       .eq('id', authData.user.id)
