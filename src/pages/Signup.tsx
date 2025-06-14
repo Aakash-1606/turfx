@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -84,7 +83,7 @@ export default function Signup() {
                 </label>
                 <Input
                   id="first-name"
-                  placeholder="John"
+                  placeholder=""
                   value={formData.firstName}
                   onChange={(e) => handleInputChange('firstName', e.target.value)}
                   required
@@ -97,7 +96,7 @@ export default function Signup() {
                 </label>
                 <Input
                   id="last-name"
-                  placeholder="Doe"
+                  placeholder=""
                   value={formData.lastName}
                   onChange={(e) => handleInputChange('lastName', e.target.value)}
                   required
@@ -112,7 +111,7 @@ export default function Signup() {
               <Input
                 id="email"
                 type="email"
-                placeholder="m@example.com"
+                placeholder=""
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 autoCapitalize="none"
@@ -129,7 +128,7 @@ export default function Signup() {
               <Input
                 id="phone"
                 type="tel"
-                placeholder="+91 9876543210"
+                placeholder=""
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
                 required
@@ -143,6 +142,7 @@ export default function Signup() {
               <Input
                 id="password"
                 type="password"
+                placeholder=""
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
                 required
@@ -156,6 +156,7 @@ export default function Signup() {
               <Input
                 id="confirm-password"
                 type="password"
+                placeholder=""
                 value={formData.confirmPassword}
                 onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                 required

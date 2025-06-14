@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -129,7 +128,7 @@ export function AdminTurfDialog({
                 id="name"
                 value={formData.name}
                 onChange={(e) => handleChange("name", e.target.value)}
-                placeholder="Green Valley Football Turf"
+                placeholder=""
               />
             </div>
             <div>
@@ -138,7 +137,7 @@ export function AdminTurfDialog({
                 id="location"
                 value={formData.location}
                 onChange={(e) => handleChange("location", e.target.value)}
-                placeholder="Pondicherry"
+                placeholder=""
               />
             </div>
           </div>
@@ -150,7 +149,7 @@ export function AdminTurfDialog({
                 id="sport"
                 value={formData.sport}
                 onChange={(e) => handleChange("sport", e.target.value)}
-                placeholder="Football"
+                placeholder=""
               />
             </div>
             <div>
@@ -160,7 +159,7 @@ export function AdminTurfDialog({
                 type="number"
                 value={formData.capacity}
                 onChange={(e) => handleChange("capacity", parseInt(e.target.value) || 0)}
-                placeholder="22"
+                placeholder=""
               />
             </div>
           </div>
@@ -173,7 +172,7 @@ export function AdminTurfDialog({
                 type="number"
                 value={formData.price}
                 onChange={(e) => handleChange("price", parseFloat(e.target.value) || 0)}
-                placeholder="500"
+                placeholder=""
               />
             </div>
             <div>
@@ -183,7 +182,7 @@ export function AdminTurfDialog({
                 type="number"
                 value={formData.price_per_hour}
                 onChange={(e) => handleChange("price_per_hour", parseFloat(e.target.value) || 0)}
-                placeholder="500"
+                placeholder=""
               />
             </div>
           </div>
@@ -194,7 +193,7 @@ export function AdminTurfDialog({
               id="amenities"
               value={formData.amenities}
               onChange={(e) => handleChange("amenities", e.target.value)}
-              placeholder="Parking, Changing Rooms, Floodlights"
+              placeholder=""
             />
           </div>
 
@@ -205,7 +204,7 @@ export function AdminTurfDialog({
               value={formData.description}
               onChange={(e) => handleChange("description", e.target.value)}
               rows={3}
-              placeholder="A well-maintained turf with excellent facilities..."
+              placeholder=""
             />
           </div>
 
@@ -221,7 +220,7 @@ export function AdminTurfDialog({
                     id="ownerFirstName"
                     value={formData.ownerFirstName}
                     onChange={(e) => handleChange("ownerFirstName", e.target.value)}
-                    placeholder="John"
+                    placeholder=""
                   />
                 </div>
                 <div>
@@ -230,7 +229,7 @@ export function AdminTurfDialog({
                     id="ownerLastName"
                     value={formData.ownerLastName}
                     onChange={(e) => handleChange("ownerLastName", e.target.value)}
-                    placeholder="Doe"
+                    placeholder=""
                   />
                 </div>
               </div>
@@ -243,7 +242,7 @@ export function AdminTurfDialog({
                     type="email"
                     value={formData.ownerEmail}
                     onChange={(e) => handleChange("ownerEmail", e.target.value)}
-                    placeholder="owner@example.com"
+                    placeholder=""
                   />
                 </div>
                 <div>
@@ -252,7 +251,7 @@ export function AdminTurfDialog({
                     id="ownerPhone"
                     value={formData.ownerPhone}
                     onChange={(e) => handleChange("ownerPhone", e.target.value)}
-                    placeholder="+91 9876543210"
+                    placeholder=""
                   />
                 </div>
               </div>
