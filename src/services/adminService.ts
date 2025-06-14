@@ -1,4 +1,3 @@
-
 import { supabase } from '@/lib/supabaseClient';
 import { Turf } from './turfService';
 
@@ -17,7 +16,7 @@ export interface AdminTurfData extends Omit<Turf, 'id' | 'created_at' | 'updated
   ownerPhone?: string;
 }
 
-// Create new turf owner account with better error handling
+// Create new turf owner account with improved error handling
 export const createTurfOwnerAccount = async (ownerData: CreateTurfOwnerData): Promise<string> => {
   console.log('Creating turf owner account:', ownerData.email);
   
@@ -61,35 +60,20 @@ export const createTurfOwnerAccount = async (ownerData: CreateTurfOwnerData): Pr
       throw new Error('Failed to create user account');
     }
 
+    // The database trigger should now handle profile creation automatically
     // Wait a moment for the trigger to complete
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Check if profile was created by trigger, if not create it manually
-    const { data: existingProfile } = await supabase
+    // Verify profile was created
+    const { data: profile: userProfile, error: profileCheckError } = await supabase
       .from('profiles')
-      .select('id')
+      .select('id, role')
       .eq('id', authData.user.id)
       .single();
 
-    if (!existingProfile) {
-      console.log('Profile not created by trigger, creating manually');
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: authData.user.id,
-          user_id: authData.user.id,
-          email: ownerData.email,
-          first_name: ownerData.firstName,
-          last_name: ownerData.lastName,
-          phone: ownerData.phone || '',
-          role: 'turf_owner'
-        });
-
-      if (profileError) {
-        console.error('Error creating profile manually:', profileError);
-        // Don't throw here, the user was created successfully
-        console.log('User created but profile creation failed, continuing...');
-      }
+    if (profileCheckError || !userProfile) {
+      console.error('Profile verification failed:', profileCheckError);
+      throw new Error('User account created but profile setup failed');
     }
 
     console.log('Turf owner account created successfully:', authData.user.id);
