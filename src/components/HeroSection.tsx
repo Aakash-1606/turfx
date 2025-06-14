@@ -95,11 +95,7 @@ export function HeroSection() {
       <div className="container relative z-10">
         <div className="mx-auto max-w-3xl text-center">
           <div className={`transition-all duration-700 ${visible ? 'opacity-100' : 'opacity-0 translate-y-10'}`}>
-            <img
-              src="/icons/TurfX Logo.png"
-              alt="TurfX Logo"
-              className={`h-20 mx-auto mb-6 ${visible ? 'animate-fade-in' : 'opacity-0'}`}
-            />
+            {/* Removed the TurfX Logo image from here */}
             <h1 className={`text-4xl font-bold tracking-tight text-foreground sm:text-6xl slide-in-left delay-200`}>
               Book Sports Turfs Across <span className="text-primary">India</span>
             </h1>
