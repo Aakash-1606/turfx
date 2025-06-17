@@ -161,3 +161,9 @@ export const getTurfsByOwner = async (ownerId: string): Promise<Turf[]> => {
   console.log(`Fetched ${data?.length || 0} turfs for owner:`, ownerId);
   return data || [];
 };
+
+if (error) {
+  console.error('Error fetching turfs:', error);
+  alert(`Supabase error: ${error.message}`); // Temporary: helps during debug
+  return [];
+};
