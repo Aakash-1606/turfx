@@ -1,3 +1,4 @@
+
 // App.tsx
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -22,6 +23,7 @@ import Payment from "./pages/Payment";
 import NotFound from "./pages/NotFound";
 import CustomerHome from "./pages/CustomerHome";
 import Privacy from "./pages/Privacy";
+import Settings from "./pages/Settings";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { RoleRedirect } from "@/components/RoleRedirect";
@@ -75,6 +77,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={["customer"]}>
                   <Payment />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Settings />
                 </ProtectedRoute>
               }
             />

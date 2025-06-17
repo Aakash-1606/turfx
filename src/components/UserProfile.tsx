@@ -73,7 +73,7 @@ export function UserProfile() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to="/profile">
+          <Link to="/settings">
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
           </Link>
