@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: '/turfx/', // 👈 ✅ THIS is the fix for white screen on custom domain
+  base: '/app.tsx/', // 👈 ✅ THIS is the fix for white screen on custom domain
   server: {
     host: "::",
     port: 8080,
