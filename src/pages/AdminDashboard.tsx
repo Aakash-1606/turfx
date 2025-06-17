@@ -1,14 +1,17 @@
+
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, CreditCard, Calendar, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MapPin, CreditCard, Calendar, TrendingUp, Plus, Edit } from "lucide-react";
 import { adminGetAllTurfs } from "@/services/adminService";
 import { Turf } from "@/services/turfService";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabaseClient"; // For fetching users
+import { supabase } from "@/lib/supabaseClient";
 import { UserBookingsDialog } from "@/components/UserBookingsDialog";
+import { AdminTurfDialog } from "@/components/AdminTurfDialog";
 import { useRef } from "react";
 
 type Profile = {
@@ -25,6 +28,11 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<Profile[]>([]);
   const [usersLoading, setUsersLoading] = useState(true);
+
+  // Turf dialog states
+  const [turfDialogOpen, setTurfDialogOpen] = useState(false);
+  const [editingTurf, setEditingTurf] = useState<Turf | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   // --- TURFS fetching ---
   const fetchAllTurfs = async () => {
@@ -84,6 +92,26 @@ export default function AdminDashboard() {
   const [userSearch, setUserSearch] = useState("");
   const [userDialogOpen, setUserDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<{ id: string, name: string } | null>(null);
+
+  // Turf dialog handlers
+  const handleAddTurf = () => {
+    setEditingTurf(null);
+    setIsEditMode(false);
+    setTurfDialogOpen(true);
+  };
+
+  const handleEditTurf = (turf: Turf) => {
+    setEditingTurf(turf);
+    setIsEditMode(true);
+    setTurfDialogOpen(true);
+  };
+
+  const handleTurfDialogSave = () => {
+    fetchAllTurfs(); // Refresh turfs list after save
+    setTurfDialogOpen(false);
+    setEditingTurf(null);
+    setIsEditMode(false);
+  };
 
   return (
     <Layout>
@@ -151,19 +179,24 @@ export default function AdminDashboard() {
         <Tabs defaultValue="turfs" className="mt-8">
           <TabsList>
             <TabsTrigger value="turfs">All Turfs</TabsTrigger>
-            {/* <TabsTrigger value="bookings">Recent Bookings</TabsTrigger> */} {/* Removed */}
             <TabsTrigger value="users">Users</TabsTrigger>
           </TabsList>
           <TabsContent value="turfs" className="mt-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
               <h3 className="text-xl font-semibold">All Turf Facilities</h3>
-              <input
-                type="text"
-                placeholder="Search Turfs..."
-                className="border rounded px-3 py-1.5 text-sm max-w-xs"
-                value={turfSearch}
-                onChange={e => setTurfSearch(e.target.value)}
-              />
+              <div className="flex gap-2 items-center">
+                <input
+                  type="text"
+                  placeholder="Search Turfs..."
+                  className="border rounded px-3 py-1.5 text-sm max-w-xs"
+                  value={turfSearch}
+                  onChange={e => setTurfSearch(e.target.value)}
+                />
+                <Button onClick={handleAddTurf} className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add Turf
+                </Button>
+              </div>
             </div>
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -187,8 +220,12 @@ export default function AdminDashboard() {
                 <CardContent>
                   <h3 className="text-xl mb-2">No turfs found</h3>
                   <p className="text-muted-foreground mb-4">
-                    Start by adding the first turf facility to the platform—in the database.
+                    Start by adding the first turf facility to the platform.
                   </p>
+                  <Button onClick={handleAddTurf} className="flex items-center gap-2 mx-auto">
+                    <Plus className="h-4 w-4" />
+                    Add First Turf
+                  </Button>
                 </CardContent>
               </Card>
             ) : (
@@ -203,7 +240,17 @@ export default function AdminDashboard() {
                       <CardHeader>
                         <div className="flex items-start justify-between">
                           <CardTitle className="text-lg">{turf.name}</CardTitle>
-                          <Badge variant="secondary">{turf.sport}</Badge>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary">{turf.sport}</Badge>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditTurf(turf)}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </CardHeader>
                       <CardContent>
@@ -225,7 +272,6 @@ export default function AdminDashboard() {
               </div>
             )}
           </TabsContent>
-          {/* Removed Bookings TabContent */}
           <TabsContent value="users" className="mt-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
               <h3 className="text-xl font-semibold">All Users</h3>
@@ -299,6 +345,14 @@ export default function AdminDashboard() {
             />
           </TabsContent>
         </Tabs>
+
+        <AdminTurfDialog
+          open={turfDialogOpen}
+          onOpenChange={setTurfDialogOpen}
+          isEdit={isEditMode}
+          turfData={editingTurf}
+          onSave={handleTurfDialogSave}
+        />
       </div>
     </Layout>
   );
