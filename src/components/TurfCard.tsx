@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Turf } from "@/services/turfService";
@@ -16,7 +15,7 @@ export function TurfCard({ turf }: TurfCardProps) {
         <div className="aspect-video w-full overflow-hidden">
           <img
             src={turf.image || "/placeholder.svg"}
-            alt={turf.name}
+            alt={turf.name || "Turf Image"}
             className="h-full w-full object-cover transition-transform hover:scale-105"
             loading="lazy"
           />
@@ -24,20 +23,20 @@ export function TurfCard({ turf }: TurfCardProps) {
         <CardContent className="p-4">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="font-semibold line-clamp-1">{turf.name}</h3>
+              <h3 className="font-semibold line-clamp-1">{turf.name || "Unnamed Turf"}</h3>
               <div className="mt-1 flex items-center text-sm text-muted-foreground">
                 <MapPin className="mr-1 h-3.5 w-3.5" />
-                <span className="line-clamp-1">{turf.location}</span>
+                <span className="line-clamp-1">{turf.location || "Unknown Location"}</span>
               </div>
             </div>
             <Badge variant="outline" className="bg-primary/10 text-primary">
-              {turf.sport}
+              {turf.sport || "Sport"}
             </Badge>
           </div>
           <div className="mt-3 flex items-center justify-between">
             <div className="flex items-center">
               <Star className="mr-1 h-4 w-4 fill-yellow-400 text-yellow-400" />
-              <span className="text-sm font-medium">{turf.rating}</span>
+              <span className="text-sm font-medium">{turf.rating ?? "4.5"}</span>
             </div>
             <div className="flex items-center text-sm text-muted-foreground">
               <Clock className="mr-1 h-3.5 w-3.5" />
@@ -47,7 +46,7 @@ export function TurfCard({ turf }: TurfCardProps) {
         </CardContent>
         <CardFooter className="p-4 pt-0 flex items-center justify-between">
           <div className="text-sm">
-            <span className="font-semibold text-primary">₹{turf.price}</span> / hour
+            <span className="font-semibold text-primary">₹{turf.price ?? 500}</span> / hour
           </div>
           <Badge variant="secondary">Book Now</Badge>
         </CardFooter>
